@@ -60,246 +60,6 @@
 }
 
 /* -----------------------------------------------
-   Reset & Base
------------------------------------------------ */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-input, button, select, textarea {
-  font-family: inherit;
-  font-size: inherit;
-}
-
-html {
-  font-size: 18px;
-  -webkit-text-size-adjust: 100%;
-  background: var(--bg) url('/predichess/assets/images/nebula-poster.webp') center / cover no-repeat fixed;
-  color: var(--text);
-  font-family: var(--font-sans);
-  height: 100%;
-  overflow-x: hidden;
-}
-
-body {
-  background: transparent;
-  color: var(--text);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow-x: hidden;
-  line-height: 1.6;
-  opacity: 1;
-  visibility: visible;
-}
-
-/* -----------------------------------------------
-   WebGL Nebula Background
------------------------------------------------ */
-#nebula-bg {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -2;
-  pointer-events: none;
-  display: block;
-  opacity: 0;
-  transition: opacity 0.5s ease-out;
-}
-
-#nebula-bg.loaded {
-  opacity: 1;
-}
-
-/* -----------------------------------------------
-   Header / Nav (matching eboshii.dev)
------------------------------------------------ */
-header {
-  background: rgba(5, 3, 10, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  padding: 0 2rem;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
-
-nav {
-  max-width: var(--max-w);
-  margin: 0 auto;
-  height: 3.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.site-brand {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.5rem;
-}
-
-.site-title {
-  font-family: var(--font-display);
-  font-size: var(--fs-lg);
-  font-weight: 700;
-  color: var(--text);
-  text-decoration: none;
-  letter-spacing: -0.045em;
-  line-height: 1;
-  display: inline-flex;
-  align-items: baseline;
-}
-
-.logo-name {
-  color: var(--text);
-  transition: color 0.15s;
-}
-
-.logo-tld {
-  color: var(--accent);
-  transition: color 0.15s;
-}
-
-.site-title:hover .logo-name { color: var(--accent); }
-
-.nav-slash {
-  color: var(--muted);
-  font-weight: 300;
-  opacity: 0.5;
-  font-family: var(--font-sans);
-  font-size: var(--fs-sm);
-  user-select: none;
-}
-
-.nav-app-name {
-  font-family: var(--font-display);
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--accent);
-}
-
-.nav-links {
-  display: flex;
-  gap: 1.75rem;
-  align-items: center;
-}
-
-.nav-links a {
-  font-size: var(--fs-sm);
-  color: var(--muted);
-  text-decoration: none;
-  letter-spacing: 0.04em;
-  transition: color 0.15s;
-  padding-bottom: 2px;
-  border-bottom: 1px solid transparent;
-}
-
-.nav-links a:hover,
-.nav-links a.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent-dim);
-}
-
-/* Nav Dropdown */
-.nav-dropdown {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-}
-
-.nav-dropdown-trigger {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: var(--fs-sm);
-  color: var(--muted);
-  letter-spacing: 0.04em;
-  padding: 0;
-  padding-bottom: 2px;
-  border-bottom: 1px solid transparent;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  transition: color 0.15s;
-}
-
-.nav-dropdown:hover .nav-dropdown-trigger,
-.nav-dropdown-trigger:hover,
-.nav-dropdown-trigger.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent-dim);
-}
-
-.dropdown-chevron {
-  transition: transform 0.15s ease;
-  opacity: 0.7;
-}
-
-.nav-dropdown:hover .dropdown-chevron {
-  transform: rotate(180deg);
-}
-
-.nav-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  white-space: nowrap;
-  background: rgba(14, 10, 24, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-strong);
-  border-radius: 4px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-  padding: 0.35rem 0;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(4px);
-  transition: opacity 0.15s ease, transform 0.15s ease;
-  z-index: 100;
-}
-
-.nav-dropdown-menu::before {
-  content: '';
-  position: absolute;
-  top: -12px;
-  left: 0;
-  right: 0;
-  height: 12px;
-}
-
-.nav-dropdown:hover .nav-dropdown-menu,
-.nav-dropdown:focus-within .nav-dropdown-menu {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-.nav-dropdown-menu a {
-  display: block;
-  padding: 0.45rem 1rem;
-  font-size: var(--fs-xs);
-  color: var(--text);
-  text-decoration: none;
-  letter-spacing: 0.02em;
-  border: none;
-  transition: background 0.12s, color 0.12s;
-}
-
-.nav-dropdown-menu a:hover,
-.nav-links .nav-dropdown-menu a.active {
-  background: rgba(240, 179, 101, 0.12);
-  color: var(--accent);
-  border: none;
-}
-
-/* -----------------------------------------------
    App Root & Screen Transitions (Cosmic 3px Bayer Dither)
 ----------------------------------------------- */
 @keyframes ditherExit {
@@ -1286,13 +1046,12 @@ main#app-root,
   width: 100%;
   height: 100%;
   background: var(--bg-card);
-  border: 1px solid rgba(240, 179, 101, 0.32);
-  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
   overflow: hidden;
   box-shadow:
-    0 24px 64px rgba(0, 0, 0, 0.9),
-    0 0 1px rgba(240, 179, 101, 0.4),
-    inset 0 0 0 1px rgba(240, 179, 101, 0.12);
+    0 20px 50px rgba(0, 0, 0, 0.85),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
   z-index: 1;
 }
 
@@ -1312,7 +1071,7 @@ main#app-root,
   justify-content: center;
   align-items: center;
   user-select: none;
-  transition: background-color 0.12s ease, box-shadow 0.12s ease;
+  transition: background-color 0.12s ease;
 }
 
 .square.light {
@@ -1358,20 +1117,19 @@ main#app-root,
   text-shadow: 0 0 4px rgba(240, 179, 101, 0.4);
 }
 
-/* Highlights */
+/* Highlights (crisp inset borders, no soft glow) */
 .square.selected {
   background-color: var(--highlight-select) !important;
-  box-shadow: inset 0 0 0 2px var(--accent), 0 0 14px rgba(240, 179, 101, 0.35);
+  box-shadow: inset 0 0 0 2px var(--accent);
 }
 
 .square.last-move {
   background-color: var(--highlight-last) !important;
-  box-shadow: inset 0 0 8px rgba(240, 179, 101, 0.18);
 }
 
 .square.check {
   background-color: var(--highlight-check) !important;
-  box-shadow: inset 0 0 0 2px var(--danger), 0 0 16px rgba(224, 108, 117, 0.45);
+  box-shadow: inset 0 0 0 2px var(--danger);
 }
 
 .square.trap {
@@ -1380,62 +1138,32 @@ main#app-root,
 }
 
 @keyframes trapPulse {
-  from { box-shadow: inset 0 0 12px var(--accent), 0 0 16px rgba(240, 179, 101, 0.4); }
-  to { box-shadow: inset 0 0 24px #FF7A00, 0 0 28px rgba(255, 122, 0, 0.6); }
+  from { box-shadow: inset 0 0 12px var(--accent); }
+  to { box-shadow: inset 0 0 24px #FF7A00; }
 }
 
-/* Move target dots & orbital capture rings (tailored for light & dark squares) */
+/* Move target dots & capture rings (crisp solid geometry, zero soft blur) */
 .move-target-dot {
   position: absolute;
-  width: 28%;
-  height: 28%;
+  width: 26%;
+  height: 26%;
   border-radius: 50%;
   pointer-events: none;
   z-index: 4;
 }
 
-/* High-contrast dark obsidian/plum beacon with gold rim on white squares */
+/* Crisp solid dark dot with defined ivory/gold ring on white squares */
 .square.light .move-target-dot {
-  background: radial-gradient(circle, #251636 0%, #36224d 55%, rgba(54, 34, 77, 0.25) 100%);
-  box-shadow:
-    0 0 0 2px rgba(240, 179, 101, 0.95),
-    0 0 8px rgba(37, 22, 54, 0.45),
-    0 2px 5px rgba(0, 0, 0, 0.35);
-  animation: spaceTargetPulseLight 2.4s ease-in-out infinite alternate;
+  background: #241638;
+  border: 2px solid #F0B365;
+  box-shadow: none;
 }
 
-@keyframes spaceTargetPulseLight {
-  0% {
-    transform: scale(0.92);
-    box-shadow: 0 0 0 1.5px rgba(240, 179, 101, 0.85), 0 2px 4px rgba(0, 0, 0, 0.3);
-  }
-  100% {
-    transform: scale(1.08);
-    box-shadow: 0 0 0 2.5px rgba(240, 179, 101, 1), 0 0 10px rgba(240, 179, 101, 0.5), 0 2px 6px rgba(0, 0, 0, 0.45);
-  }
-}
-
-/* Radiant stellar amber/gold beacon on dark squares */
+/* Crisp solid gold dot with defined starlight ring on dark squares */
 .square.dark .move-target-dot {
-  background: radial-gradient(circle, #FFF2DC 15%, #F0B365 55%, rgba(240, 179, 101, 0.2) 100%);
-  box-shadow:
-    0 0 10px rgba(240, 179, 101, 0.9),
-    0 0 3px #FFF,
-    0 0 18px rgba(240, 179, 101, 0.5);
-  animation: spaceTargetPulseDark 2.4s ease-in-out infinite alternate;
-}
-
-@keyframes spaceTargetPulseDark {
-  0% {
-    transform: scale(0.92);
-    opacity: 0.85;
-    box-shadow: 0 0 8px rgba(240, 179, 101, 0.75), 0 0 2px #FFF;
-  }
-  100% {
-    transform: scale(1.08);
-    opacity: 1;
-    box-shadow: 0 0 14px rgba(240, 179, 101, 1), 0 0 5px #FFF, 0 0 22px rgba(240, 179, 101, 0.6);
-  }
+  background: #F0B365;
+  border: 2px solid #FFF5E6;
+  box-shadow: none;
 }
 
 .move-target-capture {
@@ -1448,39 +1176,20 @@ main#app-root,
 }
 
 .square.light .move-target-capture {
-  border: 3px solid rgba(45, 25, 65, 0.9);
-  box-shadow:
-    0 0 0 1.5px rgba(240, 179, 101, 0.85),
-    inset 0 0 8px rgba(45, 25, 65, 0.3);
-  animation: spaceCaptureRingLight 2.8s ease-in-out infinite alternate;
-}
-
-@keyframes spaceCaptureRingLight {
-  0% { transform: scale(0.96); }
-  100% {
-    transform: scale(1.03);
-    box-shadow: 0 0 0 2px rgba(240, 179, 101, 1), 0 0 10px rgba(240, 179, 101, 0.4), inset 0 0 10px rgba(45, 25, 65, 0.4);
-  }
+  border: 3px solid #241638;
+  outline: 1.5px solid #F0B365;
+  outline-offset: -5px;
+  box-shadow: none;
 }
 
 .square.dark .move-target-capture {
-  border: 2.5px solid rgba(240, 179, 101, 0.9);
-  box-shadow:
-    0 0 12px rgba(240, 179, 101, 0.6),
-    inset 0 0 10px rgba(240, 179, 101, 0.35);
-  animation: spaceCaptureRingDark 2.8s ease-in-out infinite alternate;
+  border: 3px solid #F0B365;
+  outline: 1.5px solid #FFF5E6;
+  outline-offset: -5px;
+  box-shadow: none;
 }
 
-@keyframes spaceCaptureRingDark {
-  0% { transform: scale(0.96); border-color: rgba(240, 179, 101, 0.75); }
-  100% {
-    transform: scale(1.03);
-    border-color: rgba(255, 210, 140, 1);
-    box-shadow: 0 0 18px rgba(240, 179, 101, 0.8), inset 0 0 14px rgba(240, 179, 101, 0.5);
-  }
-}
-
-/* Pieces (gentle zero-gravity floating depth & starlight contour) */
+/* Pieces (crisp vector edges, no soft outlines or drop shadows) */
 .piece {
   width: 86%;
   height: 86%;
@@ -1493,45 +1202,13 @@ main#app-root,
   transition: transform 0.08s ease;
 }
 
-.piece-white svg {
-  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.65));
-  transition: filter 0.12s ease;
+.piece svg {
+  filter: none !important;
 }
 
-.piece-white:hover svg {
-  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.8));
-}
-
-.piece-white:active svg {
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 6px rgba(240, 179, 101, 0.35));
-}
-
-/* Black pieces: crisp luminous starlight silhouette rim so they never fade into dark squares */
-.piece-black svg {
-  filter:
-    drop-shadow(0 0 1.5px rgba(245, 240, 232, 0.65))
-    drop-shadow(0 0 4px rgba(240, 179, 101, 0.40))
-    drop-shadow(0 2px 6px rgba(0, 0, 0, 0.95));
-  transition: filter 0.12s ease;
-}
-
-.piece-black:hover svg {
-  filter:
-    drop-shadow(0 0 2.5px rgba(245, 240, 232, 0.85))
-    drop-shadow(0 0 8px rgba(240, 179, 101, 0.60))
-    drop-shadow(0 4px 10px rgba(0, 0, 0, 0.98));
-}
-
-.piece-black:active {
+.piece:active {
   cursor: grabbing;
-  transform: scale(1.1);
-}
-
-.piece-black:active svg {
-  filter:
-    drop-shadow(0 0 3.5px rgba(240, 179, 101, 0.95))
-    drop-shadow(0 0 14px rgba(240, 179, 101, 0.7))
-    drop-shadow(0 8px 18px rgba(0, 0, 0, 0.98));
+  transform: scale(1.08);
 }
 
 /* Pawn Promotion Overlay */
@@ -2127,97 +1804,7 @@ main#app-root,
 /* -----------------------------------------------
    Footer (matching eboshii.dev)
 ----------------------------------------------- */
-footer {
-  background: rgba(5, 3, 10, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid var(--border);
-  padding: 0.35rem 2rem;
-  min-height: 3.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.1rem;
-  line-height: 1.4;
-  text-align: center;
-  color: var(--muted);
-  font-size: var(--fs-xs);
-  margin-top: auto;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 20;
-}
-
 /* Ensure global kofi host iframe never renders on Predichess */
 #global-kofi-host {
   display: none !important;
-}
-
-.footer-inner {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.footer-sep {
-  color: var(--muted);
-  opacity: 0.6;
-}
-
-.footer-copy {
-  opacity: 0.45;
-}
-
-.footer-tip-pair {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.3rem;
-}
-
-.footer-slash {
-  color: var(--muted);
-  opacity: 0.5;
-}
-
-.footer-stats-link {
-  color: var(--muted);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: color 0.15s, border-bottom-color 0.15s;
-}
-
-.footer-stats-link:hover,
-.footer-stats-link.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent-dim);
-}
-
-@media (max-width: 640px) {
-  html { font-size: 16px; }
-
-  header { padding: 0 1rem; }
-  footer { padding: 0.35rem 1rem; }
-
-  nav {
-    height: auto;
-    padding: 0.75rem 0;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.6rem;
-  }
-
-  .nav-links {
-    flex-wrap: wrap;
-    gap: 1.25rem;
-  }
-
-  .nav-dropdown-menu {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    right: auto;
-  }
 }

@@ -1578,9 +1578,9 @@ function showToast(message, type = 'info') {
 function getPieceSvg(type, isWhite) {
   const whiteFill = '#FDFBF7';
   const whiteStroke = '#221C2B';
-  const blackFill = '#1A1225';
-  const blackStroke = '#584470';
-  const blackInnerStroke = '#FAF5EC';
+  const blackFill = '#160F22';
+  const blackStroke = '#D6CEBD';
+  const blackInnerStroke = '#D6CEBD';
 
   if (isWhite) {
     switch (type) {
