@@ -217,6 +217,10 @@ export class ChessBoard {
     return this.isAttackedBy(king.row, king.col, this.opponent(color));
   }
 
+  isKingInCheck(color) {
+    return this.isInCheck(color);
+  }
+
   findKing(color) {
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
@@ -327,6 +331,10 @@ export class ChessBoard {
       c.applyChessMove(move);
       return !c.isInCheck(piece.color);
     });
+  }
+
+  generateLegalMovesForPiece(row, col) {
+    return this.legalMovesFrom(row, col);
   }
 
   legalMoves(color) {

@@ -751,8 +751,8 @@ function renderBoardGrid() {
   // Determine which king is in check
   let whiteKingInCheck = false;
   let blackKingInCheck = false;
-  if (activeBoard.isKingInCheck(PieceColor.WHITE)) whiteKingInCheck = true;
-  if (activeBoard.isKingInCheck(PieceColor.BLACK)) blackKingInCheck = true;
+  if (activeBoard.isInCheck(PieceColor.WHITE)) whiteKingInCheck = true;
+  if (activeBoard.isInCheck(PieceColor.BLACK)) blackKingInCheck = true;
 
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
@@ -1023,7 +1023,7 @@ function handleSquareClick(row, col) {
     // Select opponent piece to predict their reply
     if (clickedPiece && clickedPiece.color === oppColor) {
       selSquare = { row, col };
-      legalTargets = activeBoard.generateLegalMovesForPiece(row, col);
+      legalTargets = activeBoard.legalMovesFrom(row, col);
       renderBoardGrid();
     } else {
       selSquare = null;
@@ -1057,7 +1057,7 @@ function handleSquareClick(row, col) {
   // Select friendly piece to move
   if (clickedPiece && clickedPiece.color === myColor) {
     selSquare = { row, col };
-    legalTargets = activeBoard.generateLegalMovesForPiece(row, col);
+    legalTargets = activeBoard.legalMovesFrom(row, col);
     renderBoardGrid();
   } else {
     selSquare = null;
