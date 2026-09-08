@@ -1579,8 +1579,8 @@ function getPieceSvg(type, isWhite) {
   const whiteFill = '#FDFBF7';
   const whiteStroke = '#221C2B';
   const blackFill = '#160F22';
-  const blackStroke = '#D6CEBD';
-  const blackInnerStroke = '#D6CEBD';
+  const blackStroke = '#F0B365';
+  const blackInnerStroke = '#F0B365';
 
   if (isWhite) {
     switch (type) {

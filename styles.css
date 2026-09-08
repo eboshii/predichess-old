@@ -33,8 +33,7 @@
   --highlight-last:    rgba(240, 179, 101, 0.22);
   --highlight-check:   rgba(224, 108, 117, 0.45);
   --highlight-trap:    rgba(240, 179, 101, 0.8);
-  --aura-light:        rgba(221, 213, 199, 0.82);
-  --aura-dark:         rgba(64, 40, 92, 0.90);
+  --aura-color:        rgba(230, 224, 214, 0.65);
 
   /* Fonts matching eboshii.dev */
   --font-serif:   'EB Garamond', Georgia, serif;
@@ -57,6 +56,246 @@
   --bayer-dither-high: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Crect width='12' height='12' fill='%23000'/%3E%3Crect x='0' y='0' width='3' height='3' fill='none'/%3E%3Crect x='6' y='6' width='3' height='3' fill='none'/%3E%3C/svg%3E");
   --bayer-dither-med:  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Crect x='0' y='0' width='3' height='3' fill='%23000'/%3E%3Crect x='6' y='0' width='3' height='3' fill='%23000'/%3E%3Crect x='3' y='3' width='3' height='3' fill='%23000'/%3E%3Crect x='9' y='3' width='3' height='3' fill='%23000'/%3E%3Crect x='0' y='6' width='3' height='3' fill='%23000'/%3E%3Crect x='6' y='6' width='3' height='3' fill='%23000'/%3E%3Crect x='3' y='9' width='3' height='3' fill='%23000'/%3E%3Crect x='9' y='9' width='3' height='3' fill='%23000'/%3E%3C/svg%3E");
   --bayer-dither-low:  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Crect x='3' y='0' width='3' height='3' fill='%23000'/%3E%3Crect x='0' y='3' width='3' height='3' fill='%23000'/%3E%3Crect x='6' y='6' width='3' height='3' fill='%23000'/%3E%3Crect x='9' y='9' width='3' height='3' fill='%23000'/%3E%3C/svg%3E");
+}
+
+/* -----------------------------------------------
+   Reset & Base
+----------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+input, button, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+html {
+  font-size: 18px;
+  -webkit-text-size-adjust: 100%;
+  background: var(--bg) url('/predichess/assets/images/nebula-poster.webp') center / cover no-repeat fixed;
+  color: var(--text);
+  font-family: var(--font-sans);
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background: transparent;
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  line-height: 1.6;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* -----------------------------------------------
+   WebGL Nebula Background
+----------------------------------------------- */
+#nebula-bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  pointer-events: none;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+}
+
+#nebula-bg.loaded {
+  opacity: 1;
+}
+
+/* -----------------------------------------------
+   Header / Nav (matching eboshii.dev)
+----------------------------------------------- */
+header {
+  background: rgba(5, 3, 10, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+nav {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.site-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.site-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.logo-name {
+  color: var(--text);
+  transition: color 0.15s;
+}
+
+.logo-tld {
+  color: var(--accent);
+  transition: color 0.15s;
+}
+
+.site-title:hover .logo-name { color: var(--accent); }
+
+.nav-slash {
+  color: var(--muted);
+  font-weight: 300;
+  opacity: 0.5;
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  user-select: none;
+}
+
+.nav-app-name {
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.75rem;
+  align-items: center;
+}
+
+.nav-links a {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.15s;
+  padding-bottom: 2px;
+  border-bottom: 1px solid transparent;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent-dim);
+}
+
+/* Nav Dropdown */
+.nav-dropdown {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.nav-dropdown-trigger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  padding: 0;
+  padding-bottom: 2px;
+  border-bottom: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: color 0.15s;
+}
+
+.nav-dropdown:hover .nav-dropdown-trigger,
+.nav-dropdown-trigger:hover,
+.nav-dropdown-trigger.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent-dim);
+}
+
+.dropdown-chevron {
+  transition: transform 0.15s ease;
+  opacity: 0.7;
+}
+
+.nav-dropdown:hover .dropdown-chevron {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  white-space: nowrap;
+  background: rgba(14, 10, 24, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  padding: 0.35rem 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 100;
+}
+
+.nav-dropdown-menu::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 0;
+  right: 0;
+  height: 12px;
+}
+
+.nav-dropdown:hover .nav-dropdown-menu,
+.nav-dropdown:focus-within .nav-dropdown-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.nav-dropdown-menu a {
+  display: block;
+  padding: 0.45rem 1rem;
+  font-size: var(--fs-xs);
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  border: none;
+  transition: background 0.12s, color 0.12s;
+}
+
+.nav-dropdown-menu a:hover,
+.nav-links .nav-dropdown-menu a.active {
+  background: rgba(240, 179, 101, 0.12);
+  color: var(--accent);
+  border: none;
 }
 
 /* -----------------------------------------------
@@ -900,8 +1139,7 @@ main#app-root,
 }
 
 /* The Dithered Gradient Aura:
-   Screened through eboshii's 12px Bayer ordered dither mask, matching adjacent square colors
-   and dissolving outward into the live background nebula */
+   Screened through eboshii's 12px Bayer ordered dither mask, dissolving outward into the live background nebula */
 .board-dither-aura {
   position: absolute;
   inset: -48px;
@@ -912,22 +1150,6 @@ main#app-root,
   -webkit-mask-size: 12px 12px;
   mask-size: 12px 12px;
   opacity: 0.95;
-  transition: opacity 0.2s ease;
-}
-
-.board-stage:hover .board-dither-aura {
-  -webkit-mask-image: var(--bayer-dither-high);
-  mask-image: var(--bayer-dither-high);
-  opacity: 1;
-}
-
-/* Subtle underlying nebula bloom behind the aura */
-.board-dither-aura::before {
-  content: '';
-  position: absolute;
-  inset: 16px;
-  background: radial-gradient(circle at 50% 50%, rgba(81, 22, 59, 0.55) 0%, rgba(32, 16, 56, 0.35) 50%, transparent 85%);
-  z-index: -1;
 }
 
 /* Aura edges (48px wide extensions around the perimeter) */
@@ -941,8 +1163,7 @@ main#app-root,
   left: 48px;
   right: 48px;
   height: 48px;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  background: linear-gradient(to top, var(--aura-color) 0%, rgba(230, 224, 214, 0.22) 45%, transparent 100%);
 }
 
 .aura-edge-bottom {
@@ -950,8 +1171,7 @@ main#app-root,
   left: 48px;
   right: 48px;
   height: 48px;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  background: linear-gradient(to bottom, var(--aura-color) 0%, rgba(230, 224, 214, 0.22) 45%, transparent 100%);
 }
 
 .aura-edge-left {
@@ -959,8 +1179,7 @@ main#app-root,
   top: 48px;
   bottom: 48px;
   width: 48px;
-  display: grid;
-  grid-template-rows: repeat(8, 1fr);
+  background: linear-gradient(to left, var(--aura-color) 0%, rgba(230, 224, 214, 0.22) 45%, transparent 100%);
 }
 
 .aura-edge-right {
@@ -968,46 +1187,7 @@ main#app-root,
   top: 48px;
   bottom: 48px;
   width: 48px;
-  display: grid;
-  grid-template-rows: repeat(8, 1fr);
-}
-
-.aura-cell {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-/* Top edge: fades upward into the nebula, blending with adjacent squares */
-.aura-edge-top .aura-cell.light {
-  background: radial-gradient(ellipse 75% 100% at 50% 100%, var(--aura-light) 0%, rgba(221, 213, 199, 0.35) 45%, transparent 100%);
-}
-.aura-edge-top .aura-cell.dark {
-  background: radial-gradient(ellipse 75% 100% at 50% 100%, var(--aura-dark) 0%, rgba(64, 40, 92, 0.40) 45%, transparent 100%);
-}
-
-/* Bottom edge: fades downward into the nebula */
-.aura-edge-bottom .aura-cell.light {
-  background: radial-gradient(ellipse 75% 100% at 50% 0%, var(--aura-light) 0%, rgba(221, 213, 199, 0.35) 45%, transparent 100%);
-}
-.aura-edge-bottom .aura-cell.dark {
-  background: radial-gradient(ellipse 75% 100% at 50% 0%, var(--aura-dark) 0%, rgba(64, 40, 92, 0.40) 45%, transparent 100%);
-}
-
-/* Left edge: fades leftward into the nebula */
-.aura-edge-left .aura-cell.light {
-  background: radial-gradient(ellipse 100% 75% at 100% 50%, var(--aura-light) 0%, rgba(221, 213, 199, 0.35) 45%, transparent 100%);
-}
-.aura-edge-left .aura-cell.dark {
-  background: radial-gradient(ellipse 100% 75% at 100% 50%, var(--aura-dark) 0%, rgba(64, 40, 92, 0.40) 45%, transparent 100%);
-}
-
-/* Right edge: fades rightward into the nebula */
-.aura-edge-right .aura-cell.light {
-  background: radial-gradient(ellipse 100% 75% at 0% 50%, var(--aura-light) 0%, rgba(221, 213, 199, 0.35) 45%, transparent 100%);
-}
-.aura-edge-right .aura-cell.dark {
-  background: radial-gradient(ellipse 100% 75% at 0% 50%, var(--aura-dark) 0%, rgba(64, 40, 92, 0.40) 45%, transparent 100%);
+  background: linear-gradient(to right, var(--aura-color) 0%, rgba(230, 224, 214, 0.22) 45%, transparent 100%);
 }
 
 /* Corners: radial falloff from corner vertex into the nebula */
@@ -1015,30 +1195,31 @@ main#app-root,
   position: absolute;
   width: 48px;
   height: 48px;
+  pointer-events: none;
 }
 
 .aura-corner-tl {
   top: 0;
   left: 0;
-  background: radial-gradient(circle at 100% 100%, var(--aura-light) 0%, rgba(221, 213, 199, 0.35) 40%, transparent 100%);
+  background: radial-gradient(circle at 100% 100%, var(--aura-color) 0%, rgba(230, 224, 214, 0.22) 45%, transparent 100%);
 }
 
 .aura-corner-tr {
   top: 0;
   right: 0;
-  background: radial-gradient(circle at 0% 100%, var(--aura-dark) 0%, rgba(64, 40, 92, 0.40) 40%, transparent 100%);
+  background: radial-gradient(circle at 0% 100%, var(--aura-color) 0%, rgba(230, 224, 214, 0.22) 45%, transparent 100%);
 }
 
 .aura-corner-bl {
   bottom: 0;
   left: 0;
-  background: radial-gradient(circle at 100% 0%, var(--aura-dark) 0%, rgba(64, 40, 92, 0.40) 40%, transparent 100%);
+  background: radial-gradient(circle at 100% 0%, var(--aura-color) 0%, rgba(230, 224, 214, 0.22) 45%, transparent 100%);
 }
 
 .aura-corner-br {
   bottom: 0;
   right: 0;
-  background: radial-gradient(circle at 0% 0%, var(--aura-light) 0%, rgba(221, 213, 199, 0.35) 40%, transparent 100%);
+  background: radial-gradient(circle at 0% 0%, var(--aura-color) 0%, rgba(230, 224, 214, 0.22) 45%, transparent 100%);
 }
 
 .board-wrapper {
@@ -1046,12 +1227,13 @@ main#app-root,
   width: 100%;
   height: 100%;
   background: var(--bg-card);
-  border: 1px solid var(--border-strong);
-  border-radius: 6px;
+  border: 1px solid rgba(240, 179, 101, 0.32);
+  border-radius: 8px;
   overflow: hidden;
   box-shadow:
-    0 20px 50px rgba(0, 0, 0, 0.85),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    0 24px 64px rgba(0, 0, 0, 0.9),
+    0 0 1px rgba(240, 179, 101, 0.4),
+    inset 0 0 0 1px rgba(240, 179, 101, 0.12);
   z-index: 1;
 }
 
@@ -1071,7 +1253,7 @@ main#app-root,
   justify-content: center;
   align-items: center;
   user-select: none;
-  transition: background-color 0.12s ease;
+  transition: background-color 0.12s ease, box-shadow 0.12s ease;
 }
 
 .square.light {
@@ -1117,19 +1299,20 @@ main#app-root,
   text-shadow: 0 0 4px rgba(240, 179, 101, 0.4);
 }
 
-/* Highlights (crisp inset borders, no soft glow) */
+/* Highlights */
 .square.selected {
   background-color: var(--highlight-select) !important;
-  box-shadow: inset 0 0 0 2px var(--accent);
+  box-shadow: inset 0 0 0 2px var(--accent), 0 0 14px rgba(240, 179, 101, 0.35);
 }
 
 .square.last-move {
   background-color: var(--highlight-last) !important;
+  box-shadow: inset 0 0 8px rgba(240, 179, 101, 0.18);
 }
 
 .square.check {
   background-color: var(--highlight-check) !important;
-  box-shadow: inset 0 0 0 2px var(--danger);
+  box-shadow: inset 0 0 0 2px var(--danger), 0 0 16px rgba(224, 108, 117, 0.45);
 }
 
 .square.trap {
@@ -1138,8 +1321,8 @@ main#app-root,
 }
 
 @keyframes trapPulse {
-  from { box-shadow: inset 0 0 12px var(--accent); }
-  to { box-shadow: inset 0 0 24px #FF7A00; }
+  from { box-shadow: inset 0 0 12px var(--accent), 0 0 16px rgba(240, 179, 101, 0.4); }
+  to { box-shadow: inset 0 0 24px #FF7A00, 0 0 28px rgba(255, 122, 0, 0.6); }
 }
 
 /* Move target dots & capture rings (crisp solid geometry, zero soft blur) */
@@ -1804,7 +1987,97 @@ main#app-root,
 /* -----------------------------------------------
    Footer (matching eboshii.dev)
 ----------------------------------------------- */
+footer {
+  background: rgba(5, 3, 10, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  padding: 0.35rem 2rem;
+  min-height: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--muted);
+  font-size: var(--fs-xs);
+  margin-top: auto;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 20;
+}
+
 /* Ensure global kofi host iframe never renders on Predichess */
 #global-kofi-host {
   display: none !important;
+}
+
+.footer-inner {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.footer-sep {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.footer-copy {
+  opacity: 0.45;
+}
+
+.footer-tip-pair {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.footer-slash {
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+.footer-stats-link {
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s, border-bottom-color 0.15s;
+}
+
+.footer-stats-link:hover,
+.footer-stats-link.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent-dim);
+}
+
+@media (max-width: 640px) {
+  html { font-size: 16px; }
+
+  header { padding: 0 1rem; }
+  footer { padding: 0.35rem 1rem; }
+
+  nav {
+    height: auto;
+    padding: 0.75rem 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 1.25rem;
+  }
+
+  .nav-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: auto;
+  }
 }
