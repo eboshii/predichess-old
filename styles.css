@@ -831,12 +831,16 @@ main#app-root,
   justify-content: space-between;
   padding: 8px 6px;
   font-family: var(--font-display);
+  gap: 6px;
+  box-sizing: border-box;
 }
 
 .opp-info-group {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .player-dot {
@@ -860,6 +864,9 @@ main#app-root,
   font-weight: 600;
   color: var(--text);
   letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .btn-back-text {
@@ -906,8 +913,14 @@ main#app-root,
   display: inline-block;
   vertical-align: middle;
   height: 28px;
-  min-width: 108px;
+  width: 86px;
+  flex-shrink: 0;
   position: relative;
+  transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flip-confirm-wrapper.is-flipped {
+  width: 146px;
 }
 
 .flip-confirm-card {
@@ -952,8 +965,9 @@ main#app-root,
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 8px;
+  padding: 0 6px;
   box-sizing: border-box;
+  white-space: nowrap;
 }
 
 .flip-confirm-back {
@@ -962,13 +976,15 @@ main#app-root,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 5px;
-  padding: 2px 6px;
+  gap: 6px;
+  padding: 2px 7px;
   border-radius: 3px;
   background: rgba(18, 14, 28, 0.96);
   border: 1px solid var(--border);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   box-sizing: border-box;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .flip-confirm-wrapper:not(.is-flipped) .flip-confirm-back {
@@ -989,11 +1005,13 @@ main#app-root,
 
 .flip-confirm-prompt {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   color: var(--text);
   user-select: none;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .flip-back-resign .flip-confirm-prompt {
@@ -1008,18 +1026,26 @@ main#app-root,
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
 }
 
 .btn-flip-action {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 700;
-  padding: 2px 7px;
+  padding: 0 7px;
+  height: 20px;
+  line-height: 20px;
   border-radius: 3px;
   cursor: pointer;
   border: 1px solid transparent;
   transition: all 0.15s ease;
-  line-height: 1.2;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 .btn-flip-no {
