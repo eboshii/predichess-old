@@ -127,14 +127,6 @@ function initPlayerProfile() {
   btnCancel.addEventListener('click', () => {
     modalEdit.classList.remove('active');
   });
-
-  // Rules modal
-  document.getElementById('btn-nav-rules').addEventListener('click', () => {
-    document.getElementById('modal-rules').classList.add('active');
-  });
-  document.getElementById('btn-close-rules').addEventListener('click', () => {
-    document.getElementById('modal-rules').classList.remove('active');
-  });
 }
 
 function updatePlayerNameDisplay() {
@@ -796,18 +788,18 @@ function updateGameHUD() {
 
   if (isMyTurn) {
     if (inPredictPhase) {
-      banner.textContent = 'SECRETLY PREDICT OPPONENT\'S MOVE';
+      banner.textContent = 'PREDICT MOVE';
       banner.style.color = 'var(--accent)';
     } else {
-      banner.textContent = 'YOUR TURN TO MOVE';
+      banner.textContent = 'YOUR TURN';
       banner.style.color = 'var(--accent)';
     }
   } else {
     if (inPredictPhase) {
-      banner.textContent = 'OPPONENT IS MAKING A PREDICTION...';
+      banner.textContent = 'OPPONENT PREDICTING';
       banner.style.color = 'var(--muted)';
     } else {
-      banner.textContent = 'WAITING FOR OPPONENT TO MOVE...';
+      banner.textContent = 'OPPONENT\'S TURN';
       banner.style.color = 'var(--muted)';
     }
   }
@@ -1022,7 +1014,7 @@ function executeMove(uci) {
     activeGame.phase = 'predict';
 
     renderGameRoom();
-    showToast('Move submitted! Now make your secret prediction.', 'info');
+    showToast('Move made. Predict reply.', 'info');
 
     // Notify opponent of our move
     roomManager.send('GAME_MOVE', {
@@ -1046,7 +1038,7 @@ function confirmPrediction(uci) {
     activeGame.currentTurn = myColor === PieceColor.WHITE ? 'black' : 'white';
 
     renderGameRoom();
-    showToast('Secret prediction locked in! Waiting for opponent...', 'success');
+    showToast('Prediction locked.', 'success');
     SoundManager.playSound('genericnotify', 1.25);
 
     // Notify opponent that prediction is locked without leaking what the prediction was!
@@ -1327,10 +1319,12 @@ function handlePassPlayPrediction(uci) {
 
   // Show blindfold transition so Player 2 doesn't see Player 1's secret prediction
   const passOverlay = document.getElementById('pass-play-dialog');
-  const passDesc = document.getElementById('pass-play-desc');
+  const passTitle = document.getElementById('pass-play-title');
   const passBtn = document.getElementById('btn-pass-play-continue');
 
-  passDesc.textContent = `Secret prediction locked. Pass the screen to ${activeGame.currentTurn === 'white' ? 'Player 1 (White)' : 'Player 2 (Black)'}.`;
+  if (passTitle) {
+    passTitle.textContent = `PASS TO ${activeGame.currentTurn === 'white' ? 'WHITE' : 'BLACK'}`;
+  }
   passOverlay.style.display = 'flex';
 
   passBtn.onclick = () => {

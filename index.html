@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Predichess — Tactical Chess Variant</title>
-  <meta name="description" content="Predichess: A tactical chess variant where you secretly predict your opponent's reply and obliterate their pieces.">
+  <title>Predichess</title>
   
   <!-- Web Favicon -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -20,7 +19,7 @@
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="styles.css">
 
-  <!-- Realtime Network Transports: MQTT + WebRTC PeerJS (zero backend required) -->
+  <!-- Realtime Network Transports: MQTT + WebRTC PeerJS -->
   <script src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
@@ -30,7 +29,7 @@
   <canvas id="nebula-bg"></canvas>
   <script src="assets/js/nebula-bg.js"></script>
 
-  <!-- Top Sticky Header matching eboshii.dev -->
+  <!-- Sticky Header matching eboshii.dev -->
   <header class="site-header">
     <nav class="header-nav">
       <div class="nav-left">
@@ -43,15 +42,13 @@
 
       <div class="nav-right">
         <!-- Player Profile Badge (Click to edit display name) -->
-        <button id="btn-player-profile" class="player-profile-pill" title="Click to change your display name">
-          <span class="pill-label">NAME:</span>
+        <button id="btn-player-profile" class="player-profile-pill" title="Edit name">
           <span id="header-player-name" class="pill-name">Player</span>
-          <svg class="pill-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="pill-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
           </svg>
         </button>
 
-        <button id="btn-nav-rules" class="nav-btn" title="View rules and mechanics">RULES</button>
         <a href="https://eboshii.github.io/games/" class="nav-link">games ↗</a>
       </div>
     </nav>
@@ -61,50 +58,31 @@
   <div id="app-root">
 
     <!-- ============================================================
-         1. LOBBY SCREEN (Replaces login screen & dashboard)
+         1. LOBBY SCREEN
          ============================================================ -->
     <div id="screen-lobby" class="screen active">
       <div class="lobby-container">
         
-        <!-- Hero Section -->
         <div class="lobby-hero">
-          <div class="hero-tag">TACTICAL CHESS VARIANT</div>
           <h1 class="hero-title">PREDICHESS</h1>
-          <p class="hero-subtitle">Chess where you wager on your opponent's reply.</p>
-          <p class="hero-desc">
-            After moving, you secretly predict which piece and square your opponent will play next.
-            If they walk into your prediction, their piece is destroyed and they must move again.
-          </p>
         </div>
 
         <!-- Mode Cards Grid -->
         <div class="lobby-grid">
 
-          <!-- Card 1: 2-Player Online Match (5-letter invite code) -->
+          <!-- Card 1: Create Room / Join -->
           <div class="card-box card-featured">
-            <div class="card-header">
-              <span class="card-badge gold">ONLINE 2-PLAYER</span>
-              <h2 class="card-title">Play vs a Friend</h2>
-              <p class="card-sub">Generate a 5-character invite code to play in real-time, or enter a code from a friend.</p>
-            </div>
-
+            <h2 class="card-title">Create Room</h2>
             <div class="card-body">
-              <button id="btn-create-room" class="btn-primary btn-large">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="16"></line>
-                  <line x1="8" y1="12" x2="16" y2="12"></line>
-                </svg>
-                CREATE 2-PLAYER GAME
-              </button>
+              <button id="btn-create-room" class="btn-primary btn-large">CREATE ROOM</button>
 
               <div class="card-divider">
-                <span>OR JOIN WITH CODE</span>
+                <span>OR JOIN</span>
               </div>
 
               <form id="form-join-code" class="join-code-form" onsubmit="return false;">
                 <div class="code-input-wrapper">
-                  <input type="text" id="input-join-code" class="code-input" placeholder="5-DIGIT CODE" maxlength="5" autocomplete="off" spellcheck="false">
+                  <input type="text" id="input-join-code" class="code-input" placeholder="CODE" maxlength="5" autocomplete="off" spellcheck="false">
                   <button id="btn-submit-join" class="btn-secondary" type="submit">JOIN</button>
                 </div>
                 <div id="join-error-msg" class="form-error" style="display: none;"></div>
@@ -112,55 +90,37 @@
             </div>
           </div>
 
-          <!-- Card 2: Offline Bot Engine -->
+          <!-- Card 2: Bot Play -->
           <div class="card-box">
-            <div class="card-header">
-              <span class="card-badge">SINGLE PLAYER</span>
-              <h2 class="card-title">Practice vs Bot</h2>
-              <p class="card-sub">Train against an offline minimax chess engine with built-in prediction heuristics.</p>
-            </div>
-
+            <h2 class="card-title">Bot Play</h2>
             <div class="card-body">
-              <div class="difficulty-group">
-                <label class="group-label">BOT DIFFICULTY:</label>
-                <div class="elo-chips">
-                  <button class="elo-chip" data-elo="800">800</button>
-                  <button class="elo-chip active" data-elo="1200">1200</button>
-                  <button class="elo-chip" data-elo="1600">1600</button>
-                  <button class="elo-chip" data-elo="2000">2000</button>
-                </div>
+              <div class="elo-chips">
+                <button class="elo-chip" data-elo="800">800</button>
+                <button class="elo-chip active" data-elo="1200">1200</button>
+                <button class="elo-chip" data-elo="1600">1600</button>
+                <button class="elo-chip" data-elo="2000">2000</button>
               </div>
 
-              <button id="btn-start-bot" class="btn-secondary btn-large" style="margin-top: 14px;">START BOT GAME</button>
-              <button id="btn-resume-bot" class="btn-outline-gold btn-large" style="margin-top: 8px; display: none;">RESUME ACTIVE BOT GAME</button>
+              <button id="btn-start-bot" class="btn-secondary btn-large" style="margin-top: 14px;">PLAY BOT</button>
+              <button id="btn-resume-bot" class="btn-outline-gold btn-large" style="margin-top: 8px; display: none;">RESUME GAME</button>
             </div>
           </div>
 
-          <!-- Card 3: Pass & Play (Local 2-Player) -->
+          <!-- Card 3: Local 2P -->
           <div class="card-box">
-            <div class="card-header">
-              <span class="card-badge">SHARED SCREEN</span>
-              <h2 class="card-title">Pass &amp; Play</h2>
-              <p class="card-sub">Play locally with a friend taking turns on this computer or laptop.</p>
-            </div>
-
+            <h2 class="card-title">Local 2P</h2>
             <div class="card-body">
-              <button id="btn-start-pass-play" class="btn-secondary btn-large" style="margin-top: auto;">START LOCAL 2-PLAYER</button>
+              <button id="btn-start-pass-play" class="btn-secondary btn-large" style="margin-top: auto;">PLAY LOCAL</button>
             </div>
           </div>
 
-        </div>
-
-        <!-- Footer link back to eboshii.dev -->
-        <div class="lobby-footer">
-          <p>Created by <a href="https://eboshii.github.io/" target="_blank" rel="noopener">eboshii.dev</a> &bull; Tactical Chess with Hidden Predictions</p>
         </div>
 
       </div>
     </div>
 
     <!-- ============================================================
-         2. GAME SCREEN (The Chess Board & Match HUD)
+         2. GAME SCREEN (Chess Board & HUD)
          ============================================================ -->
     <div id="screen-game" class="screen">
       <div class="game-layout">
@@ -177,11 +137,11 @@
               <span id="game-opponent-name" class="opponent-text-name">Opponent</span>
             </div>
 
-            <!-- Active Room Code Badge (Click to copy invite link anytime!) -->
-            <button id="game-room-code-badge" class="room-pill-badge" style="display: none;" title="Click to copy invite link">
+            <!-- Active Room Code Badge -->
+            <button id="game-room-code-badge" class="room-pill-badge" style="display: none;" title="Copy invite link">
               <span class="badge-tag">ROOM:</span>
               <span id="game-room-code-val" class="badge-code">-----</span>
-              <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
@@ -200,13 +160,11 @@
             <!-- Prediction phase overlay -->
             <div id="prediction-tint-overlay" class="prediction-tint">
               <div class="prediction-tint-content">
-                <span class="tint-icon">👁</span>
-                <span class="tint-text">PREDICTION PHASE</span>
-                <span class="tint-sub">Drag opponent's piece to the square you predict</span>
+                <span class="tint-text">PREDICT MOVE</span>
               </div>
             </div>
             
-            <!-- Pawn Promotion Modal (Inside Board) -->
+            <!-- Pawn Promotion Modal -->
             <div id="promotion-dialog" class="promotion-overlay">
               <div class="promotion-box">
                 <div class="promo-option" data-promo="QUEEN" id="promo-q"></div>
@@ -216,13 +174,11 @@
               </div>
             </div>
 
-            <!-- Pass & Play Blindfold Screen (Prevents opponent from seeing prediction) -->
+            <!-- Pass & Play Transition Screen -->
             <div id="pass-play-dialog" class="pass-play-overlay" style="display: none;">
               <div class="pass-play-card">
-                <div class="pass-play-icon">🔒</div>
-                <h3 id="pass-play-title" class="pass-play-title">SECRET PREDICTION LOCKED</h3>
-                <p id="pass-play-desc" class="pass-play-desc">Pass the screen to your opponent to continue.</p>
-                <button id="btn-pass-play-continue" class="btn-primary">CONTINUE TURN</button>
+                <h3 id="pass-play-title" class="pass-play-title">PASS DEVICE</h3>
+                <button id="btn-pass-play-continue" class="btn-primary" style="margin-top: 12px;">CONTINUE</button>
               </div>
             </div>
           </div>
@@ -236,7 +192,7 @@
               </div>
               <span id="game-my-timer" class="game-timer" style="display: none;">--:--</span>
             </div>
-            <div class="turn-status-text-display" id="game-turn-banner">WAITING FOR GAME START</div>
+            <div class="turn-status-text-display" id="game-turn-banner">WAITING</div>
           </div>
 
           <!-- Navigation Controls Row -->
@@ -244,7 +200,7 @@
             <button id="btn-game-first" class="btn-game-control" title="First Move">⏮</button>
             <button id="btn-game-prev" class="btn-game-control" title="Previous Move">◀</button>
             <button id="btn-game-next" class="btn-game-control" title="Next Move">▶</button>
-            <button id="btn-game-last" class="btn-game-live" title="Jump to active board">LIVE</button>
+            <button id="btn-game-last" class="btn-game-live" title="Live Board">LIVE</button>
           </div>
 
         </div>
@@ -252,8 +208,8 @@
         <!-- Right Side: Move Log Card -->
         <aside class="game-log-panel">
           <div class="panel-header-row">
-            <div class="move-log-title">MOVE LOG &amp; PREDICTIONS</div>
-            <div id="connection-status-dot" class="conn-dot online" title="Connection active"></div>
+            <div class="move-log-title">MOVES</div>
+            <div id="connection-status-dot" class="conn-dot online" title="Connected"></div>
           </div>
           <div id="game-move-log" class="move-log">
             <!-- JS Injections -->
@@ -267,13 +223,12 @@
          3. MODALS & OVERLAYS
          ============================================================ -->
 
-    <!-- HOST ROOM MODAL (Displays 5-letter invite code & copy buttons) -->
+    <!-- HOST ROOM MODAL -->
     <div id="modal-host-room" class="dialog-overlay">
       <div class="dialog-box host-room-box">
-        <h3 class="dialog-title">2-PLAYER GAME CREATED</h3>
-        <p class="dialog-message">Share this 5-character code or link with someone to invite them to play:</p>
+        <h3 class="dialog-title">ROOM CODE</h3>
 
-        <!-- Big 5-character Invite Code -->
+        <!-- 5-character Invite Code -->
         <div class="invite-code-container">
           <div id="host-room-code-display" class="invite-code-display">-----</div>
         </div>
@@ -286,28 +241,27 @@
           </button>
           <button id="btn-copy-room-link" class="btn-action-pill">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-            COPY INVITE LINK
+            COPY LINK
           </button>
         </div>
 
-        <!-- Timer control options for host -->
+        <!-- Timer control options -->
         <div class="host-timer-picker">
-          <label class="group-label">TIME CONTROL:</label>
           <div class="timer-chips">
-            <button class="timer-chip" data-timer="blitz_10m">10 MIN</button>
-            <button class="timer-chip active" data-timer="rapid_20m">20 MIN</button>
-            <button class="timer-chip" data-timer="rapid_30m">30 MIN</button>
-            <button class="timer-chip" data-timer="untimed">UNTIMED</button>
+            <button class="timer-chip" data-timer="blitz_10m">10M</button>
+            <button class="timer-chip active" data-timer="rapid_20m">20M</button>
+            <button class="timer-chip" data-timer="rapid_30m">30M</button>
+            <button class="timer-chip" data-timer="untimed">∞</button>
           </div>
         </div>
 
-        <!-- Live waiting indicator -->
+        <!-- Waiting indicator -->
         <div class="host-waiting-status">
           <span class="pulsing-amber-dot"></span>
-          <span>Waiting for opponent to connect with code...</span>
+          <span>Waiting for opponent...</span>
         </div>
 
-        <div class="dialog-buttons" style="margin-top: 20px;">
+        <div class="dialog-buttons" style="margin-top: 18px;">
           <button id="btn-cancel-host-room" class="btn-dialog btn-dialog-cancel">CANCEL</button>
         </div>
       </div>
@@ -315,11 +269,10 @@
 
     <!-- EDIT DISPLAY NAME MODAL -->
     <div id="modal-edit-name" class="dialog-overlay">
-      <div class="dialog-box" style="max-width: 380px;">
-        <h4 class="dialog-title">PLAYER DISPLAY NAME</h4>
-        <p class="dialog-message">Choose how your name appears to other players:</p>
-        <form id="form-edit-name" onsubmit="return false;" style="margin: 16px 0;">
-          <input type="text" id="input-player-name" class="form-input" maxlength="18" placeholder="Your name" autocomplete="off">
+      <div class="dialog-box" style="max-width: 340px;">
+        <h4 class="dialog-title">NAME</h4>
+        <form id="form-edit-name" onsubmit="return false;" style="margin: 12px 0;">
+          <input type="text" id="input-player-name" class="form-input" maxlength="18" placeholder="Name" autocomplete="off">
         </form>
         <div class="dialog-buttons">
           <button id="btn-save-name" class="btn-dialog btn-dialog-confirm">SAVE</button>
@@ -328,59 +281,19 @@
       </div>
     </div>
 
-    <!-- RULES MODAL -->
-    <div id="modal-rules" class="dialog-overlay">
-      <div class="dialog-box rules-box">
-        <h3 class="dialog-title">HOW TO PLAY PREDICHESS</h3>
-        
-        <div class="rules-content">
-          <div class="rules-section">
-            <h4>1. Standard Moves with a Twist</h4>
-            <p>Predichess follows traditional chess rules: castling, en passant, pawn promotion, and standard movement patterns are identical.</p>
-          </div>
-
-          <div class="rules-section">
-            <h4>2. The Prediction Phase</h4>
-            <p>Immediately after you make your move, you secretly predict <strong>which piece and destination square</strong> your opponent will choose next (by clicking and dragging one of their pieces).</p>
-          </div>
-
-          <div class="rules-section">
-            <h4>3. Springing the Trap</h4>
-            <p>If your opponent plays the exact piece and square you predicted, <strong>the trap is sprung!</strong></p>
-            <ul>
-              <li>The moving piece is instantly vaporized/destroyed.</li>
-              <li>Your opponent loses that piece and <strong>must make another move</strong>.</li>
-              <li>If you successfully predict their King's move, their King is destroyed and you <strong>win the game immediately</strong>!</li>
-            </ul>
-          </div>
-
-          <div class="rules-section">
-            <h4>4. Prediction Miss</h4>
-            <p>If your opponent plays any move other than your secret prediction, their move resolves normally, and then they predict your next response.</p>
-          </div>
-        </div>
-
-        <div class="dialog-buttons" style="margin-top: 24px;">
-          <button id="btn-close-rules" class="btn-dialog btn-dialog-confirm">GOT IT</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- GLOBAL DYNAMIC ALERT DIALOG (Resignation, Game Over, etc.) -->
+    <!-- GLOBAL DYNAMIC ALERT DIALOG (Resignation, Game Over) -->
     <div id="global-dialog" class="dialog-overlay">
       <div class="dialog-box">
         <h4 class="dialog-title" id="dialog-title">Alert</h4>
-        <p class="dialog-message" id="dialog-message">Message body...</p>
-        <div class="dialog-buttons" id="dialog-buttons">
-          <!-- Button Injection -->
-        </div>
+        <p class="dialog-message" id="dialog-message"></p>
+        <div class="dialog-buttons" id="dialog-buttons"></div>
       </div>
     </div>
 
     <!-- GLOBAL TOAST NOTIFICATIONS -->
     <div class="toast-container">
       <div id="global-toast" class="toast">
-        <span id="toast-message">Notification details</span>
+        <span id="toast-message"></span>
       </div>
     </div>
 
