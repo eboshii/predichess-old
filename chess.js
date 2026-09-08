@@ -229,7 +229,9 @@ export class ChessBoard {
     return null;
   }
 
-  isAttackedBy(row, col, byColor) {
+  getAttackers(row, col, byColor) {
+    const attackers = [];
+
     // Knights
     const knightOffsets = [
       [-2, -1], [-2, 1], [-1, -2], [-1, 2],
@@ -240,7 +242,9 @@ export class ChessBoard {
       const c = col + dc;
       if (r >= 0 && r < 8 && c >= 0 && c < 8) {
         const p = this.squares[r][c];
-        if (p && p.color === byColor && p.type === PieceType.KNIGHT) return true;
+        if (p && p.color === byColor && p.type === PieceType.KNIGHT) {
+          attackers.push({ row: r, col: c, piece: p });
+        }
       }
     }
 
@@ -252,7 +256,9 @@ export class ChessBoard {
         const c = col + dc;
         if (r >= 0 && r < 8 && c >= 0 && c < 8) {
           const p = this.squares[r][c];
-          if (p && p.color === byColor && p.type === PieceType.KING) return true;
+          if (p && p.color === byColor && p.type === PieceType.KING) {
+            attackers.push({ row: r, col: c, piece: p });
+          }
         }
       }
     }
@@ -264,7 +270,9 @@ export class ChessBoard {
       const c = col + dc;
       if (r >= 0 && r < 8 && c >= 0 && c < 8) {
         const p = this.squares[r][c];
-        if (p && p.color === byColor && p.type === PieceType.PAWN) return true;
+        if (p && p.color === byColor && p.type === PieceType.PAWN) {
+          attackers.push({ row: r, col: c, piece: p });
+        }
       }
     }
 
@@ -276,7 +284,9 @@ export class ChessBoard {
       while (r >= 0 && r < 8 && c >= 0 && c < 8) {
         const p = this.squares[r][c];
         if (p) {
-          if (p.color === byColor && (p.type === PieceType.ROOK || p.type === PieceType.QUEEN)) return true;
+          if (p.color === byColor && (p.type === PieceType.ROOK || p.type === PieceType.QUEEN)) {
+            attackers.push({ row: r, col: c, piece: p });
+          }
           break;
         }
         r += dr;
@@ -292,7 +302,9 @@ export class ChessBoard {
       while (r >= 0 && r < 8 && c >= 0 && c < 8) {
         const p = this.squares[r][c];
         if (p) {
-          if (p.color === byColor && (p.type === PieceType.BISHOP || p.type === PieceType.QUEEN)) return true;
+          if (p.color === byColor && (p.type === PieceType.BISHOP || p.type === PieceType.QUEEN)) {
+            attackers.push({ row: r, col: c, piece: p });
+          }
           break;
         }
         r += dr;
@@ -300,7 +312,11 @@ export class ChessBoard {
       }
     }
 
-    return false;
+    return attackers;
+  }
+
+  isAttackedBy(row, col, byColor) {
+    return this.getAttackers(row, col, byColor).length > 0;
   }
 
   legalMovesFrom(row, col) {
@@ -671,6 +687,38 @@ export const BotEngine = {
         else if (piece.type === PieceType.BISHOP) posBonus = BISHOP_TABLE[tableIndex];
         else if (piece.type === PieceType.ROOK) posBonus = ROOK_TABLE[tableIndex];
 
+        // --- Predichess Tactical Heuristic: Bait-and-Vaporize Multi-Threats ---
+        // An aggressive piece placed where exactly 1 enemy piece attacks it,
+        // but it threatens 2+ enemy pieces (or King/Queen).
+        // In Predichess, this is lethal because the attacker's sole capture can be predicted and vaporized!
+        if (r >= 1 && r <= 6 && piece.type !== PieceType.KING) {
+          const oppCol = board.opponent(piece.color);
+          const attackers = board.getAttackers(r, c, oppCol);
+          if (attackers.length === 1) {
+            let targetCount = 0;
+            let attacksKingOrQueen = false;
+            const pseudo = board.pseudoFrom(r, c, piece);
+            for (let i = 0; i < pseudo.length; i++) {
+              const tr = pseudo[i].toRow;
+              const tc = pseudo[i].toCol;
+              const targetPiece = board.squares[tr][tc];
+              if (targetPiece && targetPiece.color === oppCol) {
+                targetCount++;
+                if (targetPiece.type === PieceType.KING || targetPiece.type === PieceType.QUEEN) {
+                  attacksKingOrQueen = true;
+                }
+              }
+            }
+            if (attacksKingOrQueen && targetCount >= 2) {
+              posBonus += 700;
+            } else if (targetCount >= 2) {
+              posBonus += 450;
+            } else if (attacksKingOrQueen) {
+              posBonus += 300;
+            }
+          }
+        }
+
         const totalVal = valBase + posBonus;
         if (piece.color === PieceColor.WHITE) {
           score += totalVal;
@@ -679,10 +727,38 @@ export const BotEngine = {
         }
       }
     }
+
+    // --- Predichess Tactical Heuristic: King Snipe Bottlenecks ---
+    // If White is in check, count White's legal moves (evasions).
+    if (board.isInCheck(PieceColor.WHITE)) {
+      const wMoves = board.legalMoves(PieceColor.WHITE);
+      if (wMoves.length === 1) {
+        // White King has only 1 legal evasion: 100% lethal snipe hazard
+        score -= 6000;
+      } else if (wMoves.length === 2) {
+        score -= 1800;
+      } else if (wMoves.length === 3) {
+        score -= 600;
+      }
+    }
+
+    // If Black is in check, count Black's legal moves (evasions).
+    if (board.isInCheck(PieceColor.BLACK)) {
+      const bMoves = board.legalMoves(PieceColor.BLACK);
+      if (bMoves.length === 1) {
+        // Black King has only 1 legal evasion: 100% lethal snipe hazard
+        score += 6000;
+      } else if (bMoves.length === 2) {
+        score += 1800;
+      } else if (bMoves.length === 3) {
+        score += 600;
+      }
+    }
+
     return score;
   },
 
-  minimax(board, depth, alpha, beta, isMaximizing) {
+  minimax(board, depth, alpha, beta, isMaximizing, elo = 1600) {
     const result = board.gameResult();
     if (result !== GameResult.ONGOING) {
       if (result === GameResult.CHECKMATE_WHITE_WINS) return [100000 + depth, null];
@@ -701,13 +777,21 @@ export const BotEngine = {
       return [isMaximizing ? -100000 : 100000, null];
     }
 
-    // Sort moves: simple move ordering (captures first)
+    // Enhanced move ordering: MVV-LVA captures first to maximize alpha-beta cutoffs
     const orderedMoves = [...moves].sort((mA, mB) => {
       const targetA = board.squares[mA.toRow][mA.toCol];
       const targetB = board.squares[mB.toRow][mB.toCol];
-      const valA = targetA ? (PIECE_VALUES[targetA.type] || 0) : 0;
-      const valB = targetB ? (PIECE_VALUES[targetB.type] || 0) : 0;
-      return valB - valA;
+      const pieceA = board.squares[mA.fromRow][mA.fromCol];
+      const pieceB = board.squares[mB.fromRow][mB.fromCol];
+      let priorityA = 0;
+      let priorityB = 0;
+      if (targetA) {
+        priorityA = (PIECE_VALUES[targetA.type] || 0) * 10 - (pieceA ? (PIECE_VALUES[pieceA.type] || 0) : 0);
+      }
+      if (targetB) {
+        priorityB = (PIECE_VALUES[targetB.type] || 0) * 10 - (pieceB ? (PIECE_VALUES[pieceB.type] || 0) : 0);
+      }
+      return priorityB - priorityA;
     });
 
     let bestMove = null;
@@ -717,7 +801,7 @@ export const BotEngine = {
       for (const move of orderedMoves) {
         const nextBoard = board.copy();
         nextBoard.applyChessMove(move);
-        const [evalVal] = this.minimax(nextBoard, depth - 1, currentAlpha, beta, false);
+        const [evalVal] = this.minimax(nextBoard, depth - 1, currentAlpha, beta, false, elo);
         if (evalVal > maxEval) {
           maxEval = evalVal;
           bestMove = move;
@@ -732,7 +816,7 @@ export const BotEngine = {
       for (const move of orderedMoves) {
         const nextBoard = board.copy();
         nextBoard.applyChessMove(move);
-        const [evalVal] = this.minimax(nextBoard, depth - 1, alpha, currentBeta, true);
+        const [evalVal] = this.minimax(nextBoard, depth - 1, alpha, currentBeta, true, elo);
         if (evalVal < minEval) {
           minEval = evalVal;
           bestMove = move;
@@ -744,8 +828,9 @@ export const BotEngine = {
     }
   },
 
-  getBestMove(board, color, elo = 1600) {
+  getBestMove(board, color, elo = 1600, events = []) {
     const isMaximizing = color === PieceColor.WHITE;
+    const oppColor = board.opponent(color);
     const legal = board.legalMoves(color);
     if (legal.length === 0) return null;
     if (legal.length === 1) return legal[0];
@@ -776,7 +861,6 @@ export const BotEngine = {
     }
 
     if (color === PieceColor.BLACK && this.isBlackFirstMove(board)) {
-      // Find what White played
       let whiteMoveUci = "";
       for (let r = 2; r <= 5; r++) {
         for (let c = 0; c < 8; c++) {
@@ -841,13 +925,13 @@ export const BotEngine = {
     let blunderChance;
     if (elo <= 800) {
       depth = 1;
-      blunderChance = 0.35;
+      blunderChance = 0.30;
     } else if (elo <= 1200) {
       depth = 2;
-      blunderChance = 0.15;
+      blunderChance = 0.12;
     } else if (elo <= 1600) {
       depth = 3;
-      blunderChance = 0.05;
+      blunderChance = 0.03;
     } else {
       depth = 4;
       blunderChance = 0.0;
@@ -858,24 +942,127 @@ export const BotEngine = {
       return legal[Math.floor(Math.random() * legal.length)];
     }
 
+    // Identify opponent's last move from events (for trap paranoia and bait evaluation)
+    let lastOppMove = null;
+    if (events && events.length > 0) {
+      const lastEvent = [...events].reverse().find(e => !e.startsWith('trap:') && e.length >= 4);
+      if (lastEvent) {
+        lastOppMove = board.parseUci(lastEvent);
+      }
+    }
+
     const searchDepth = (legal.length > 25 && depth > 2) ? depth - 1 : depth;
 
-    // Evaluate each legal move at searchDepth - 1
+    // Evaluate each candidate move with Minimax + Predichess Lookahead heuristics
     const moveEvaluations = legal.map(move => {
       const nextBoard = board.copy();
       nextBoard.applyChessMove(move);
-      const [evalVal] = this.minimax(nextBoard, searchDepth - 1, -Infinity, Infinity, !isMaximizing);
-      // If color is White, higher score is better. If Black, lower score is better.
-      const relativeScore = isMaximizing ? evalVal : -evalVal;
+      const [evalVal] = this.minimax(nextBoard, searchDepth - 1, -Infinity, Infinity, !isMaximizing, elo);
+      let relativeScore = isMaximizing ? evalVal : -evalVal;
+
+      // --- OFFENSE: Manifesting King Check-Snipe Opportunities ---
+      // If our move checks the opponent King, look at how many escape moves they have
+      if (nextBoard.isInCheck(oppColor)) {
+        const oppEscapes = nextBoard.legalMoves(oppColor);
+        if (oppEscapes.length === 1) {
+          // Absolute lethal check-snipe! The bot will predict this single escape and vaporize the King!
+          relativeScore += 12000;
+        } else if (oppEscapes.length === 2) {
+          relativeScore += 3500;
+        } else if (oppEscapes.length <= 4) {
+          relativeScore += 1200;
+        }
+      }
+
+      // --- OFFENSE: Manifesting Move Bottlenecks (Entropy Reduction) ---
+      // Severely restricted opponent positions are extremely predictable
+      const oppLegalCount = nextBoard.legalMoves(oppColor).length;
+      if (oppLegalCount <= 3) {
+        relativeScore += 2500;
+      } else if (oppLegalCount <= 6) {
+        relativeScore += 1000;
+      }
+
+      // --- OFFENSE: Bait-and-Vaporize Multi-Threat Manifestation ---
+      // Moving a piece where exactly 1 enemy piece attacks it, but it threatens 2+ enemy targets
+      const attackersOnSquare = nextBoard.getAttackers(move.toRow, move.toCol, oppColor);
+      if (attackersOnSquare.length === 1) {
+        const movingPiece = nextBoard.squares[move.toRow][move.toCol];
+        if (movingPiece && movingPiece.type !== PieceType.KING) {
+          let targetsCount = 0;
+          let attacksKing = false;
+          let attacksQueen = false;
+          const pMoves = nextBoard.pseudoFrom(move.toRow, move.toCol, movingPiece);
+          for (let k = 0; k < pMoves.length; k++) {
+            const tr = pMoves[k].toRow;
+            const tc = pMoves[k].toCol;
+            const tgt = nextBoard.squares[tr][tc];
+            if (tgt && tgt.color === oppColor) {
+              targetsCount++;
+              if (tgt.type === PieceType.KING) attacksKing = true;
+              if (tgt.type === PieceType.QUEEN) attacksQueen = true;
+            }
+          }
+          if (attacksKing && targetsCount >= 2) {
+            relativeScore += 2500; // Lethal King fork bait
+          } else if (attacksQueen && targetsCount >= 2) {
+            relativeScore += 1800; // Queen fork bait
+          } else if (targetsCount >= 2) {
+            relativeScore += 1200; // Multi-threat bait
+          }
+        }
+      }
+
+      // --- DEFENSE: Lethal King Snipe Avoidance ---
+      // Look 1-ply ahead: can opponent counter with a check that bottlenecks our King into <= 1 flight?
+      const oppImmediateReplies = nextBoard.legalMoves(oppColor);
+      let lethalReplyFound = false;
+      for (let i = 0; i < oppImmediateReplies.length; i++) {
+        const reply = oppImmediateReplies[i];
+        const repBoard = nextBoard.copy();
+        repBoard.applyChessMove(reply);
+        if (repBoard.isInCheck(color)) {
+          const myEscapes = repBoard.legalMoves(color);
+          if (myEscapes.length <= 1) {
+            lethalReplyFound = true;
+            break;
+          }
+        }
+      }
+      if (lethalReplyFound) {
+        relativeScore -= 10000;
+      }
+
+      // --- DEFENSE: Trap Paranoia & Anti-Bait (ELO >= 1400) ---
+      // If candidate move captures opponent's newly moved, undefended piece:
+      // In Predichess, this is likely a bait trap designed to vaporize our capturing piece!
+      if (lastOppMove && move.toRow === lastOppMove.toRow && move.toCol === lastOppMove.toCol) {
+        const oppDefenders = board.getAttackers(lastOppMove.toRow, lastOppMove.toCol, oppColor);
+        if (oppDefenders.length === 0) {
+          const capturingPiece = board.squares[move.fromRow][move.fromCol];
+          const pieceVal = capturingPiece ? (PIECE_VALUES[capturingPiece.type] || 300) : 300;
+          const paranoiaFactor = elo >= 2000 ? 0.85 : (elo >= 1600 ? 0.65 : 0.40);
+          relativeScore -= Math.round(pieceVal * paranoiaFactor);
+        }
+      }
+
       return { move, score: relativeScore };
     });
 
     // Sort by best moves first (descending relative score)
     moveEvaluations.sort((a, b) => b.score - a.score);
 
-    // If the top move is a checkmate / king vaporization (highly forced), play it immediately
-    if (moveEvaluations[0].score >= 90000) {
+    // If the top move is a checkmate or forced king-snipe setup, play it immediately!
+    if (moveEvaluations[0].score >= 8000) {
       return moveEvaluations[0].move;
+    }
+
+    // At ELO 2000: strictly play the top move (or top 2 with heavy bias)
+    if (elo >= 2000) {
+      if (moveEvaluations.length === 1 || moveEvaluations[0].score > moveEvaluations[1].score + 50) {
+        return moveEvaluations[0].move;
+      }
+      return Math.random() < 0.85 ? moveEvaluations[0].move : moveEvaluations[1].move;
     }
 
     // Take top choices (up to top 4 moves)
@@ -886,7 +1073,7 @@ export const BotEngine = {
     const minScore = topChoices[topChoices.length - 1].score;
     const shiftedScores = topChoices.map(c => ({
       move: c.move,
-      shifted: Math.max(1, c.score - minScore + 15) // +15 buffer ensures top move is favored but alternatives are viable
+      shifted: Math.max(1, c.score - minScore + 15)
     }));
 
     // Square scores to heavily weight towards absolute best choices
@@ -908,55 +1095,158 @@ export const BotEngine = {
     return topChoices[0].move;
   },
 
-  getWeightedPrediction(board, playerColor, elo = 1600) {
+  getWeightedPrediction(board, playerColor, elo = 1600, events = []) {
     const playerMoves = board.legalMoves(playerColor);
     if (playerMoves.length === 0) return "";
-
-    const isPlayerWhite = playerColor === PieceColor.WHITE;
+    if (playerMoves.length === 1) return playerMoves[0].toUci();
 
     // Dynamic blunder chances for prediction sampler
-    let blunderChance;
-    if (elo <= 800) blunderChance = 0.40;
-    else if (elo <= 1200) blunderChance = 0.20;
-    else if (elo <= 1600) blunderChance = 0.08;
-    else blunderChance = 0.0;
+    let blunderChance = 0.0;
+    if (elo <= 800) blunderChance = 0.35;
+    else if (elo <= 1200) blunderChance = 0.15;
+    else if (elo <= 1600) blunderChance = 0.04;
 
     if (Math.random() < blunderChance) {
       return playerMoves[Math.floor(Math.random() * playerMoves.length)].toUci();
     }
 
-    // Pair each move with its evaluation after the player makes it
+    // --- TIER 1: King-Snipe (Player is in check with forced or narrow escapes) ---
+    if (board.isInCheck(playerColor)) {
+      // If player has only 1 legal move to escape check: 100% certainty!
+      if (playerMoves.length === 1) {
+        return playerMoves[0].toUci();
+      }
+      // If player has 2 legal moves to escape check:
+      if (playerMoves.length === 2) {
+        const c0 = board.copy();
+        c0.applyChessMove(playerMoves[0]);
+        const s0 = this.evaluateBoard(c0);
+        const c1 = board.copy();
+        c1.applyChessMove(playerMoves[1]);
+        const s1 = this.evaluateBoard(c1);
+
+        const isPlayerWhite = playerColor === PieceColor.WHITE;
+        const rel0 = isPlayerWhite ? s0 : -s0;
+        const rel1 = isPlayerWhite ? s1 : -s1;
+        const betterMove = rel0 >= rel1 ? playerMoves[0] : playerMoves[1];
+        const worseMove = rel0 >= rel1 ? playerMoves[1] : playerMoves[0];
+
+        const roll = Math.random();
+        if (elo >= 1400) {
+          return roll < 0.75 ? betterMove.toUci() : worseMove.toUci();
+        } else {
+          return roll < 0.50 ? betterMove.toUci() : worseMove.toUci();
+        }
+      }
+    }
+
+    // --- TIER 2: Sprung Bait Trap (Player capturing the bot's deliberately placed bait piece) ---
+    let lastBotMove = null;
+    if (events && events.length > 0) {
+      const lastEvent = [...events].reverse().find(e => !e.startsWith('trap:') && e.length >= 4);
+      if (lastEvent) {
+        lastBotMove = board.parseUci(lastEvent);
+      }
+    }
+
+    if (lastBotMove) {
+      const captureBaitMoves = playerMoves.filter(
+        m => m.toRow === lastBotMove.toRow && m.toCol === lastBotMove.toCol
+      );
+
+      if (captureBaitMoves.length === 1) {
+        // Exactly ONE player move captures our bait!
+        // The bot placed this bait specifically to vaporize the enemy attacker!
+        const baitPredictProb = elo >= 2000 ? 0.80 : (elo >= 1600 ? 0.65 : 0.45);
+        if (Math.random() < baitPredictProb) {
+          return captureBaitMoves[0].toUci();
+        }
+      } else if (captureBaitMoves.length > 1) {
+        // Multiple player pieces can capture our piece (e.g. recaptures)
+        const baitPredictProb = elo >= 2000 ? 0.65 : (elo >= 1600 ? 0.50 : 0.35);
+        if (Math.random() < baitPredictProb) {
+          // Humans strongly prefer capturing with the lowest-value piece (e.g. pawn first)
+          captureBaitMoves.sort((a, b) => {
+            const pA = board.squares[a.fromRow][a.fromCol];
+            const pB = board.squares[b.fromRow][b.fromCol];
+            const vA = pA ? (PIECE_VALUES[pA.type] || 0) : 0;
+            const vB = pB ? (PIECE_VALUES[pB.type] || 0) : 0;
+            return vA - vB;
+          });
+          return captureBaitMoves[0].toUci();
+        }
+      }
+
+      // --- TIER 3: Attacked High-Value Piece Evacuation ---
+      const botPiece = board.squares[lastBotMove.toRow][lastBotMove.toCol];
+      if (botPiece) {
+        const attackedMajorPieces = [];
+        const pseudo = board.pseudoFrom(lastBotMove.toRow, lastBotMove.toCol, botPiece);
+        for (const m of pseudo) {
+          const target = board.squares[m.toRow][m.toCol];
+          if (target && target.color === playerColor && 
+              (target.type === PieceType.QUEEN || target.type === PieceType.ROOK)) {
+            attackedMajorPieces.push({ row: m.toRow, col: m.toCol, piece: target });
+          }
+        }
+        if (attackedMajorPieces.length > 0) {
+          attackedMajorPieces.sort((a, b) => (PIECE_VALUES[b.piece.type] || 0) - (PIECE_VALUES[a.piece.type] || 0));
+          const targetToSave = attackedMajorPieces[0];
+          const escapeMoves = playerMoves.filter(
+            m => m.fromRow === targetToSave.row && m.fromCol === targetToSave.col
+          );
+          if (escapeMoves.length > 0) {
+            const fleeProb = elo >= 1600 ? 0.60 : 0.40;
+            if (Math.random() < fleeProb) {
+              const scoredEscapes = escapeMoves.map(m => {
+                const bCopy = board.copy();
+                bCopy.applyChessMove(m);
+                const score = playerColor === PieceColor.WHITE ? 
+                  this.evaluateBoard(bCopy) : -this.evaluateBoard(bCopy);
+                return { move: m, score };
+              });
+              scoredEscapes.sort((a, b) => b.score - a.score);
+              return scoredEscapes[0].move.toUci();
+            }
+          }
+        }
+      }
+    }
+
+    // --- TIER 4: General High-Evaluation Softmax Sampling ---
+    const isPlayerWhite = playerColor === PieceColor.WHITE;
     const moveEvaluations = playerMoves.map(move => {
       const nextBoard = board.copy();
       nextBoard.applyChessMove(move);
       const score = this.evaluateBoard(nextBoard);
-      // If player is White, higher score is better for them. If Black, lower score is better.
       const relativeScore = isPlayerWhite ? score : -score;
       return { move, score: relativeScore };
     });
 
-    // Sort by player's best moves first (descending relative score)
     moveEvaluations.sort((a, b) => b.score - a.score);
 
-    // Take top moves (up to top 5)
-    const numChoices = Math.min(5, moveEvaluations.length);
-    const topChoices = moveEvaluations.slice(0, numChoices);
+    // Dynamic selection breadth based on ELO
+    let numChoices;
+    if (elo >= 2000) numChoices = Math.min(2, moveEvaluations.length);
+    else if (elo >= 1600) numChoices = Math.min(3, moveEvaluations.length);
+    else if (elo >= 1200) numChoices = Math.min(4, moveEvaluations.length);
+    else numChoices = Math.min(6, moveEvaluations.length);
 
-    // Assign weights. Shift scores to positive
+    const topChoices = moveEvaluations.slice(0, numChoices);
     const minScore = topChoices[topChoices.length - 1].score;
+
     const shiftedScores = topChoices.map(c => ({
       move: c.move,
       shifted: Math.max(1, c.score - minScore + 10)
     }));
 
-    // Square scores to heavily weight towards absolute best choices
+    const power = elo >= 1600 ? 3 : 2;
     const weights = shiftedScores.map(s => ({
       move: s.move,
-      weight: s.shifted * s.shifted
+      weight: Math.pow(s.shifted, power)
     }));
     const totalWeight = weights.reduce((acc, w) => acc + w.weight, 0);
 
-    // Sample based on weights
     let rand = Math.random() * totalWeight;
     for (const item of weights) {
       rand -= item.weight;

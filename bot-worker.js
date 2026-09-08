@@ -24,10 +24,10 @@ self.onmessage = (e) => {
     let uci = '';
     if (kind === 'predict') {
       // Bot predicts White's (the human player's) next move.
-      uci = BotEngine.getWeightedPrediction(board, PieceColor.WHITE, elo) || '';
+      uci = BotEngine.getWeightedPrediction(board, PieceColor.WHITE, elo, events) || '';
     } else {
       // Bot plays Black's move.
-      const move = BotEngine.getBestMove(board, PieceColor.BLACK, elo);
+      const move = BotEngine.getBestMove(board, PieceColor.BLACK, elo, events);
       uci = move ? move.toUci() : '';
     }
 
