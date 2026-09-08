@@ -326,12 +326,16 @@ body {
   animation: ditherEnter 130ms steps(4) forwards !important;
 }
 
+main#app-root,
 #app-root {
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   position: relative;
   width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
 }
 
 .screen {

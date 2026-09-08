@@ -17,23 +17,24 @@
   <link rel="preload" href="assets/images/nebula-poster.webp" as="image" type="image/webp">
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" id="predichess-css" href="styles.css">
 
   <!-- Realtime Network Transports: MQTT + WebRTC PeerJS -->
-  <script src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script id="script-mqtt" src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
+  <script id="script-peerjs" src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
 <body>
 
   <!-- Fullscreen WebGL Nebula Background from eboshii.dev -->
   <canvas id="nebula-bg"></canvas>
   <script src="assets/js/nebula-bg.js"></script>
+  <script src="assets/js/instant-nav.js"></script>
 
   <!-- Sticky Header matching eboshii.dev -->
   <header class="site-header">
     <nav class="header-nav">
       <div class="nav-left">
-        <a class="site-title" href="https://eboshii.github.io/" aria-label="eboshii.dev">
+        <a class="site-title" href="/" aria-label="eboshii.dev">
           <span class="logo-name">eboshii</span><span class="logo-tld">.dev</span>
         </a>
         <span class="nav-slash">/</span>
@@ -49,13 +50,13 @@
           </svg>
         </button>
 
-        <a href="https://eboshii.github.io/games/" class="nav-link">games ↗</a>
+        <a href="/games/" class="nav-link">games ↗</a>
       </div>
     </nav>
   </header>
 
   <!-- Main App Root -->
-  <div id="app-root">
+  <main id="app-root">
 
     <!-- ============================================================
          1. LOBBY SCREEN (Vertical Expandable Menu)
@@ -308,19 +309,19 @@
       </div>
     </div>
 
-  </div>
+  </main>
 
   <!-- Site Footer matching eboshii.dev -->
   <footer class="site-footer">
     <div class="footer-inner">
       <span>&copy; 2026 eboshii.dev</span>
       <span class="footer-sep">&middot;</span>
-      <a href="https://eboshii.dev/stats/" class="footer-stats-link">stats</a>
+      <a href="/stats/" class="footer-stats-link">stats</a>
       <span class="footer-sep">&middot;</span>
       <span class="footer-tip-pair">
-        <a href="https://eboshii.dev/tip/" class="footer-stats-link">tip jar</a>
+        <a href="/tip/" class="footer-stats-link">tip jar</a>
         <span class="footer-slash">/</span>
-        <a href="https://eboshii.dev/crypto/" class="footer-stats-link">crypto</a>
+        <a href="/crypto/" class="footer-stats-link">crypto</a>
       </span>
     </div>
   </footer>

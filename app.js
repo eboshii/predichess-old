@@ -20,11 +20,11 @@ import {
 // --- SOUND MANAGER ---
 const SoundManager = {
   sounds: {
-    move: './sounds/move.mp3',
-    capture: './sounds/capture.mp3',
-    explosion: './sounds/explosion.mp3',
-    genericnotify: './sounds/genericnotify.mp3',
-    lowtime: './sounds/lowtime.mp3'
+    move: new URL('sounds/move.mp3', import.meta.url).href,
+    capture: new URL('sounds/capture.mp3', import.meta.url).href,
+    explosion: new URL('sounds/explosion.mp3', import.meta.url).href,
+    genericnotify: new URL('sounds/genericnotify.mp3', import.meta.url).href,
+    lowtime: new URL('sounds/lowtime.mp3', import.meta.url).href
   },
 
   playSound(name, pitch = 1.0) {
@@ -78,16 +78,56 @@ let botRequestId = 0;
 // Pass & Play state
 let passPlayBlindfoldPending = false;
 
-// --- INITIALIZATION ---
-document.addEventListener('DOMContentLoaded', () => {
-  initPageTransitions();
+// --- INITIALIZATION & LIFECYCLE ---
+export function initApp() {
+  cleanupApp();
+
+  activeGameMode = null;
+  activeGameId = null;
+  activeGame = null;
+  activeBoard = new ChessBoard();
+  reviewIndex = -1;
+  selSquare = null;
+  legalTargets = [];
+  promotionPendingMove = null;
+
   initPlayerProfile();
   initLobbyHandlers();
   initGameHandlers();
   initBoardInteraction();
   checkUrlInviteCode();
+  showScreen('lobby');
   try { localStorage.removeItem('predichess_saved_bot_game'); } catch (_) {}
-});
+}
+
+export function cleanupApp() {
+  if (clockInterval) {
+    clearInterval(clockInterval);
+    clockInterval = null;
+  }
+  if (botWorker) {
+    botWorker.terminate();
+    botWorker = null;
+    botRunning = false;
+  }
+  if (roomManager) {
+    roomManager.disconnect();
+  }
+  document.querySelectorAll('.dialog-overlay').forEach(d => d.classList.remove('active'));
+}
+
+window.initPredichessApp = initApp;
+window.cleanupPredichessApp = cleanupApp;
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    initPageTransitions();
+    initApp();
+  });
+} else {
+  initPageTransitions();
+  initApp();
+}
 
 // --- PAGE & SCREEN TRANSITIONS (Cosmic 3px Bayer Dither) ---
 function initPageTransitions() {
@@ -96,32 +136,6 @@ function initPageTransitions() {
     appRoot.classList.add('dither-enter');
     setTimeout(() => appRoot.classList.remove('dither-enter'), 135);
   }
-
-  // Intercept outbound navigation to eboshii.dev to play smooth dither exit transition
-  document.addEventListener('click', (e) => {
-    const link = e.target.closest('a');
-    if (!link) return;
-
-    const href = link.getAttribute('href');
-    if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
-    if (link.target === '_blank') return;
-
-    try {
-      const targetUrl = new URL(link.href, window.location.href);
-      if (
-        targetUrl.origin !== window.location.origin ||
-        targetUrl.pathname !== window.location.pathname
-      ) {
-        e.preventDefault();
-        const root = document.getElementById('app-root') || document.body;
-        root.classList.remove('dither-enter');
-        root.classList.add('dither-exit');
-        setTimeout(() => {
-          window.location.href = targetUrl.href;
-        }, 85);
-      }
-    } catch (_) {}
-  });
 }
 
 // --- SCREEN SWITCHER ---
@@ -1214,7 +1228,7 @@ function handleBotTrap(game, uci) {
 
 function getBotWorker() {
   if (!botWorker) {
-    botWorker = new Worker('./bot-worker.js', { type: 'module' });
+    botWorker = new Worker(new URL('./bot-worker.js', import.meta.url), { type: 'module' });
     botWorker.onmessage = (e) => onBotWorkerResponse(e.data);
     botWorker.onerror = () => { botRunning = false; };
   }
