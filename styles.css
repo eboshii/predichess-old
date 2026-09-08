@@ -333,10 +333,10 @@ body {
 }
 
 /* -----------------------------------------------
-   Lobby Screen
+   Lobby Screen (Vertical Menu)
 ----------------------------------------------- */
 .lobby-container {
-  max-width: 960px;
+  max-width: 440px;
   width: 100%;
   margin: auto auto;
   padding: 2rem 1.5rem 2.5rem;
@@ -346,12 +346,12 @@ body {
 
 .lobby-hero {
   text-align: center;
-  margin-bottom: 1.75rem;
+  margin-bottom: 2rem;
 }
 
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--text);
@@ -359,85 +359,128 @@ body {
   text-shadow: 0 4px 24px rgba(0, 0, 0, 0.8);
 }
 
-.lobby-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
+.vertical-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
 }
 
-.card-box {
+.menu-section {
   background: var(--bg-card);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 1.6rem 1.4rem;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.card-box:hover {
+.menu-section:hover {
   border-color: var(--border-strong);
-  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.65);
 }
 
-.card-featured {
-  border-color: rgba(240, 179, 101, 0.4);
-  background: linear-gradient(180deg, rgba(28, 18, 48, 0.85) 0%, rgba(14, 10, 24, 0.82) 100%);
-  position: relative;
-}
-
-.card-featured:hover {
+.menu-section.open {
   border-color: var(--accent);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
 }
 
-.card-title {
+.menu-btn {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text);
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 600;
   letter-spacing: -0.01em;
-  color: var(--text);
-  margin-bottom: 1.25rem;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
 }
 
-.card-body {
-  margin-top: auto;
+.menu-btn:hover {
+  color: var(--accent);
+}
+
+.menu-section.open .menu-btn {
+  color: var(--accent);
+  background: rgba(240, 179, 101, 0.07);
+}
+
+.menu-chevron {
+  color: var(--muted);
+  transition: transform 0.25s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.menu-section.open .menu-chevron {
+  transform: rotate(180deg);
+  color: var(--accent);
+}
+
+.menu-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-section.open .menu-content {
+  max-height: 300px;
+}
+
+.menu-inner {
+  padding: 16px 20px 20px;
+  border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
+  gap: 12px;
 }
 
-.card-divider {
+.menu-divider {
   display: flex;
   align-items: center;
   text-align: center;
-  margin: 1.25rem 0;
+  margin: 4px 0;
   color: var(--muted);
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   letter-spacing: 0.1em;
 }
 
-.card-divider::before,
-.card-divider::after {
+.menu-divider::before,
+.menu-divider::after {
   content: '';
   flex: 1;
   border-bottom: 1px solid var(--border);
 }
 
-.card-divider span {
+.menu-divider span {
   padding: 0 10px;
+}
+
+.join-code-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 .code-input-wrapper {
   display: flex;
   gap: 8px;
+  align-items: center;
+  width: 100%;
 }
 
 .code-input {
   flex: 1;
+  min-width: 0;
+  height: 42px;
   background: var(--code-bg);
   border: 1px solid var(--border);
   border-radius: 4px;
@@ -446,16 +489,24 @@ body {
   font-size: 1.1rem;
   font-weight: 600;
   text-align: center;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  padding: 8px 12px;
+  padding: 0 12px;
   outline: none;
+  box-sizing: border-box;
   transition: all 0.15s;
 }
 
 .code-input:focus {
   border-color: var(--accent);
   box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.code-input-wrapper .btn-secondary {
+  height: 42px;
+  padding: 0 20px;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .form-error {

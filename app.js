@@ -143,7 +143,14 @@ function checkUrlInviteCode() {
       const input = document.getElementById('input-join-code');
       if (input) {
         input.value = code.toUpperCase();
-        showToast(`Invite code ${code.toUpperCase()} detected! Click JOIN to enter.`, 'info');
+        showToast(`Code ${code.toUpperCase()} detected`, 'info');
+      }
+      // Expand Online 2P section
+      const onlineSec = document.getElementById('section-online');
+      if (onlineSec) {
+        onlineSec.classList.add('open');
+        const b = onlineSec.querySelector('.menu-btn');
+        if (b) b.setAttribute('aria-expanded', 'true');
       }
     }
   } catch (_) {}
@@ -151,6 +158,25 @@ function checkUrlInviteCode() {
 
 // --- LOBBY HANDLERS ---
 function initLobbyHandlers() {
+  // Accordion Menu Toggle
+  const sections = document.querySelectorAll('.menu-section');
+  sections.forEach(sec => {
+    const btn = sec.querySelector('.menu-btn');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const isOpen = sec.classList.contains('open');
+      sections.forEach(s => {
+        s.classList.remove('open');
+        const b = s.querySelector('.menu-btn');
+        if (b) b.setAttribute('aria-expanded', 'false');
+      });
+      if (!isOpen) {
+        sec.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
   // 1. Create Room (Host)
   const btnCreate = document.getElementById('btn-create-room');
   const modalHost = document.getElementById('modal-host-room');

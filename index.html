@@ -58,7 +58,7 @@
   <div id="app-root">
 
     <!-- ============================================================
-         1. LOBBY SCREEN
+         1. LOBBY SCREEN (Vertical Expandable Menu)
          ============================================================ -->
     <div id="screen-lobby" class="screen active">
       <div class="lobby-container">
@@ -67,50 +67,71 @@
           <h1 class="hero-title">PREDICHESS</h1>
         </div>
 
-        <!-- Mode Cards Grid -->
-        <div class="lobby-grid">
+        <!-- Vertical Menu Accordion -->
+        <div class="vertical-menu">
 
-          <!-- Card 1: Create Room / Join -->
-          <div class="card-box card-featured">
-            <h2 class="card-title">Create Room</h2>
-            <div class="card-body">
-              <button id="btn-create-room" class="btn-primary btn-large">CREATE ROOM</button>
+          <!-- Option 1: Online 2P -->
+          <div class="menu-section" id="section-online">
+            <button class="menu-btn" type="button" aria-expanded="false">
+              <span class="menu-btn-text">Online 2P</span>
+              <svg class="menu-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </button>
+            <div class="menu-content">
+              <div class="menu-inner">
+                <button id="btn-create-room" class="btn-primary btn-large">CREATE ROOM</button>
 
-              <div class="card-divider">
-                <span>OR JOIN</span>
-              </div>
-
-              <form id="form-join-code" class="join-code-form" onsubmit="return false;">
-                <div class="code-input-wrapper">
-                  <input type="text" id="input-join-code" class="code-input" placeholder="CODE" maxlength="5" autocomplete="off" spellcheck="false">
-                  <button id="btn-submit-join" class="btn-secondary" type="submit">JOIN</button>
+                <div class="menu-divider">
+                  <span>OR JOIN WITH CODE</span>
                 </div>
-                <div id="join-error-msg" class="form-error" style="display: none;"></div>
-              </form>
-            </div>
-          </div>
 
-          <!-- Card 2: Bot Play -->
-          <div class="card-box">
-            <h2 class="card-title">Bot Play</h2>
-            <div class="card-body">
-              <div class="elo-chips">
-                <button class="elo-chip" data-elo="800">800</button>
-                <button class="elo-chip active" data-elo="1200">1200</button>
-                <button class="elo-chip" data-elo="1600">1600</button>
-                <button class="elo-chip" data-elo="2000">2000</button>
+                <form id="form-join-code" class="join-code-form" onsubmit="return false;">
+                  <div class="code-input-wrapper">
+                    <input type="text" id="input-join-code" class="code-input" placeholder="CODE" maxlength="5" autocomplete="off" spellcheck="false">
+                    <button id="btn-submit-join" class="btn-secondary" type="submit">JOIN</button>
+                  </div>
+                  <div id="join-error-msg" class="form-error" style="display: none;"></div>
+                </form>
               </div>
-
-              <button id="btn-start-bot" class="btn-secondary btn-large" style="margin-top: 14px;">PLAY BOT</button>
-              <button id="btn-resume-bot" class="btn-outline-gold btn-large" style="margin-top: 8px; display: none;">RESUME GAME</button>
             </div>
           </div>
 
-          <!-- Card 3: Local 2P -->
-          <div class="card-box">
-            <h2 class="card-title">Local 2P</h2>
-            <div class="card-body">
-              <button id="btn-start-pass-play" class="btn-secondary btn-large" style="margin-top: auto;">PLAY LOCAL</button>
+          <!-- Option 2: Local 2P -->
+          <div class="menu-section" id="section-local">
+            <button class="menu-btn" type="button" aria-expanded="false">
+              <span class="menu-btn-text">Local 2P</span>
+              <svg class="menu-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </button>
+            <div class="menu-content">
+              <div class="menu-inner">
+                <button id="btn-start-pass-play" class="btn-primary btn-large">START LOCAL MATCH</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Option 3: Bot -->
+          <div class="menu-section" id="section-bot">
+            <button class="menu-btn" type="button" aria-expanded="false">
+              <span class="menu-btn-text">Bot</span>
+              <svg class="menu-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </button>
+            <div class="menu-content">
+              <div class="menu-inner">
+                <div class="elo-chips">
+                  <button class="elo-chip" data-elo="800">800</button>
+                  <button class="elo-chip active" data-elo="1200">1200</button>
+                  <button class="elo-chip" data-elo="1600">1600</button>
+                  <button class="elo-chip" data-elo="2000">2000</button>
+                </div>
+
+                <button id="btn-start-bot" class="btn-primary btn-large" style="margin-top: 14px;">PLAY BOT</button>
+                <button id="btn-resume-bot" class="btn-outline-gold btn-large" style="margin-top: 8px; display: none;">RESUME GAME</button>
+              </div>
             </div>
           </div>
 
