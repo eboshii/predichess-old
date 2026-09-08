@@ -1069,63 +1069,6 @@ main#app-root,
   transform: scale(1.1);
 }
 
-/* Prediction Overlay */
-.prediction-tint {
-  position: absolute;
-  inset: 0;
-  background: rgba(14, 10, 28, 0.65);
-  backdrop-filter: blur(2px);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2;
-}
-
-.prediction-tint.active {
-  opacity: 1;
-}
-
-.prediction-tint-content {
-  background: rgba(14, 10, 24, 0.92);
-  border: 1px solid var(--accent);
-  padding: 12px 24px;
-  border-radius: 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-  pointer-events: none;
-  animation: floatOverlay 3s ease-in-out infinite alternate;
-}
-
-@keyframes floatOverlay {
-  from { transform: translateY(0); }
-  to { transform: translateY(-4px); }
-}
-
-.tint-icon {
-  font-size: 1.6rem;
-  margin-bottom: 2px;
-}
-
-.tint-text {
-  font-family: var(--font-display);
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--accent);
-}
-
-.tint-sub {
-  font-family: var(--font-sans);
-  font-size: 0.78rem;
-  color: var(--muted);
-  margin-top: 2px;
-}
-
 /* Pawn Promotion Overlay */
 .promotion-overlay {
   position: absolute;

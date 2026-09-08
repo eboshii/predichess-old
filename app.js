@@ -831,17 +831,6 @@ function renderBoardGrid() {
       grid.appendChild(sq);
     }
   }
-
-  // Tint overlay for prediction phase
-  const tint = document.getElementById('prediction-tint-overlay');
-  const inPredictPhase = activeGame.phase === 'predict';
-  const isMyTurn = (activeGame.currentTurn === 'white' && myColor === PieceColor.WHITE) ||
-                   (activeGame.currentTurn === 'black' && myColor === PieceColor.BLACK);
-  if (inPredictPhase && isMyTurn && reviewIndex === -1 && activeGame.status === 'active') {
-    tint.classList.add('active');
-  } else {
-    tint.classList.remove('active');
-  }
 }
 
 function updateGameHUD() {
@@ -874,7 +863,7 @@ function updateGameHUD() {
 
   if (isMyTurn) {
     if (inPredictPhase) {
-      banner.textContent = 'PREDICT MOVE';
+      banner.textContent = 'PREDICT OPPONENT\'S MOVE';
       banner.style.color = 'var(--accent)';
     } else {
       banner.textContent = 'YOUR TURN';
