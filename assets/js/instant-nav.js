@@ -292,6 +292,54 @@
     });
   }
 
+  // Helper to ensure a stylesheet is loaded and active, or deactivated
+  function setStylesheetState(id, href, active) {
+    return new Promise((resolve) => {
+      let link = document.getElementById(id);
+      if (!link) {
+        if (!active) {
+          resolve(null);
+          return;
+        }
+        link = document.createElement('link');
+        link.id = id;
+        link.rel = 'stylesheet';
+        link.href = href;
+        link.onload = () => {
+          link.disabled = false;
+          link.media = 'all';
+          resolve(link);
+        };
+        link.onerror = () => {
+          resolve(link);
+        };
+        document.head.appendChild(link);
+        setTimeout(() => resolve(link), 600);
+        return;
+      }
+
+      if (active) {
+        link.disabled = false;
+        link.media = 'all';
+        if (link.sheet) {
+          resolve(link);
+          return;
+        }
+        link.addEventListener('load', () => {
+          link.disabled = false;
+          link.media = 'all';
+          resolve(link);
+        }, { once: true });
+        link.addEventListener('error', () => resolve(link), { once: true });
+        setTimeout(() => resolve(link), 600);
+      } else {
+        link.disabled = true;
+        link.media = 'not all';
+        resolve(link);
+      }
+    });
+  }
+
   async function navigate(url, pushState = true) {
     try {
       const currentMain = document.querySelector('main');
@@ -328,8 +376,28 @@
         if (typeof window.cleanupPredichessApp === 'function') {
           window.cleanupPredichessApp();
         }
-        const predCss = document.getElementById('predichess-css') || document.getElementById('predichess-stylesheet');
-        if (predCss) predCss.disabled = true;
+      }
+
+      // Synchronize stylesheets BEFORE content swap so incoming view is styled immediately
+      if (isPredichessRoute) {
+        const predHref = new URL('/predichess/styles.css', window.location.origin).href;
+        await setStylesheetState('predichess-css', predHref, true);
+        await setStylesheetState('eboshii-main-css', '', false);
+
+        // Ensure MQTT and PeerJS scripts are loaded
+        if (!window.mqtt) {
+          await loadScriptOnce('script-mqtt', 'https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js');
+        }
+        if (!window.Peer) {
+          await loadScriptOnce('script-peerjs', 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js');
+        }
+      } else {
+        const docMainCss = doc.querySelector('link#eboshii-main-css, link[href*="main.css"]');
+        const mainCssHref = docMainCss
+          ? new URL(docMainCss.getAttribute('href'), window.location.origin).href
+          : new URL('/assets/css/main.css', window.location.origin).href;
+        await setStylesheetState('eboshii-main-css', mainCssHref, true);
+        await setStylesheetState('predichess-css', '', false);
       }
 
       // Update page title
@@ -339,7 +407,11 @@
       const newHeader = doc.querySelector('header');
       const currentHeader = document.querySelector('header');
       if (newHeader && currentHeader) {
-        currentHeader.className = newHeader.className;
+        if (newHeader.getAttribute('class')) {
+          currentHeader.className = newHeader.className;
+        } else {
+          currentHeader.removeAttribute('class');
+        }
         currentHeader.innerHTML = newHeader.innerHTML;
       }
 
@@ -347,60 +419,58 @@
       const newFooter = doc.querySelector('footer');
       const currentFooter = document.querySelector('footer');
       if (newFooter && currentFooter) {
-        currentFooter.className = newFooter.className;
+        if (newFooter.getAttribute('class')) {
+          currentFooter.className = newFooter.className;
+        } else {
+          currentFooter.removeAttribute('class');
+        }
         currentFooter.innerHTML = newFooter.innerHTML;
       }
 
       // Update main ID and class
-      currentMain.id = newMain.id || '';
-      currentMain.className = newMain.className;
+      if (newMain.getAttribute('id')) {
+        currentMain.id = newMain.id;
+      } else {
+        currentMain.removeAttribute('id');
+      }
+      if (newMain.getAttribute('class')) {
+        currentMain.className = newMain.className;
+      } else {
+        currentMain.removeAttribute('class');
+      }
+      if (currentMain.hasAttribute('style')) {
+        currentMain.removeAttribute('style');
+      }
 
       // Swap main content without touching the WebGL canvas
       currentMain.innerHTML = newMain.innerHTML;
 
       // Toggle permanent Ko-fi host visibility without moving/reloading iframe
-      const kofiHost = document.getElementById('global-kofi-host');
-      const kofiIframe = document.getElementById('global-kofi-iframe');
+      let kofiHost = document.getElementById('global-kofi-host');
+      if (!kofiHost && !isPredichessRoute) {
+        const docKofi = doc.getElementById('global-kofi-host');
+        if (docKofi) {
+          document.body.appendChild(docKofi.cloneNode(true));
+          kofiHost = document.getElementById('global-kofi-host');
+        }
+      }
       if (kofiHost) {
         const isTip = url.pathname.includes('/tip');
+        const kofiIframe = document.getElementById('global-kofi-iframe');
         if (isTip && kofiIframe && !kofiIframe.getAttribute('src') && kofiIframe.dataset.src) {
           kofiIframe.src = kofiIframe.dataset.src;
         }
         kofiHost.classList.toggle('active', isTip);
       }
 
-      // Handle Predichess specific assets & initialization
+      // Initialize or re-mount Predichess application
       if (isPredichessRoute) {
-        // Ensure Predichess CSS is loaded and active
-        let predCss = document.getElementById('predichess-css') || document.getElementById('predichess-stylesheet');
-        if (!predCss) {
-          predCss = document.createElement('link');
-          predCss.id = 'predichess-css';
-          predCss.rel = 'stylesheet';
-          predCss.href = new URL('/predichess/styles.css', window.location.origin).href;
-          document.head.appendChild(predCss);
-        } else {
-          predCss.disabled = false;
-        }
-
-        // Ensure MQTT and PeerJS scripts are loaded
-        if (!window.mqtt) {
-          await loadScriptOnce('script-mqtt', 'https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js');
-        }
-        if (!window.Peer) {
-          await loadScriptOnce('script-peerjs', 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js');
-        }
-
-        // Initialize or re-mount Predichess application
         if (typeof window.initPredichessApp === 'function') {
           window.initPredichessApp();
         } else {
           const appJsUrl = new URL('/predichess/app.js', window.location.origin).href;
           await import(appJsUrl);
         }
-      } else {
-        const predCss = document.getElementById('predichess-css') || document.getElementById('predichess-stylesheet');
-        if (predCss) predCss.disabled = true;
       }
 
       // Update nav highlights

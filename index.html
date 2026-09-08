@@ -16,6 +16,10 @@
   <!-- Background preloads -->
   <link rel="preload" href="assets/images/nebula-poster.webp" as="image" type="image/webp">
 
+  <!-- Main Site CSS preloaded for instantaneous zero-flicker transition back to eboshii.dev -->
+  <link rel="preload" href="/assets/css/main.css" as="style">
+  <link rel="stylesheet" id="eboshii-main-css" href="/assets/css/main.css" disabled media="not all">
+
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" id="predichess-css" href="styles.css">
 
@@ -325,6 +329,11 @@
       </span>
     </div>
   </footer>
+
+  <!-- Permanent Global Ko-fi Container matching eboshii.dev -->
+  <div id="global-kofi-host" class="global-kofi-host" aria-label="Ko-fi donation widget">
+    <iframe id="global-kofi-iframe" data-src="https://ko-fi.com/eboshii/?hidefeed=true&widget=true&embed=true" class="kofi-page-iframe" title="Support eboshii on Ko-fi"></iframe>
+  </div>
 
   <!-- Application Script Module -->
   <script type="module" src="app.js"></script>

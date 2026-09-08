@@ -33,7 +33,7 @@
     uniform float u_kofi_radius;
     uniform float u_kofi_fade;
     uniform vec4 u_glow_boxes[6];  // x, y (center, screen px), half_w, half_h
-    uniform vec4 u_glow_params[6]; // x = fade px, y = intensity 0..1, z = whiteness
+    uniform vec4 u_glow_params[6]; // x = fade px, y = intensity 0..1, z = 1 forces white
 
     // Standard 4x4 Bayer Matrix (100% WebGL 1.0 compliant)
     float bayer4x4(vec2 p) {
@@ -122,6 +122,34 @@
 
       // Extends between 1.0x and 3.2x with dramatic fractal undulations
       return 1.0 + 2.2 * norm;
+    }
+
+    vec3 rgb2hsv(vec3 c) {
+      vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+      vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+      vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+      float d = q.x - min(q.w, q.y);
+      float e = 1.0e-10;
+      return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+    }
+
+    vec3 hsv2rgb(vec3 c) {
+      vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+      vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+      return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+    }
+
+    // Complement of whatever gas sits behind: opposite hue, held bright.
+    // A plain 1.0 - col inverse is no good here - over near-black it just
+    // returns white, and over mid tones it collapses to grey. Saturation
+    // washes out as the background brightens, because complementary hues can
+    // share luminance: over the amber cores a vivid azure would sit at the
+    // same brightness as the core and disappear.
+    vec3 complementOf(vec3 base) {
+      vec3 hsv = rgb2hsv(base);
+      float bl = dot(base, vec3(0.2126, 0.7152, 0.0722));
+      float wash = smoothstep(0.10, 0.25, bl);
+      return hsv2rgb(vec3(fract(hsv.x + 0.5), mix(0.78, 0.05, wash), 0.98));
     }
 
     // Signed distance to a rounded box (negative inside)
@@ -301,7 +329,7 @@
       // turn: sequential mixing compounds where two rows' outlines meet, which
       // reads as a bright seam between them instead of two separate edges.
       float maxHalo = 0.0;
-      vec3 haloCol = c_amber;
+      float haloWhite = 0.0;
       for (int i = 0; i < 6; i++) {
         float intensity = u_glow_params[i].y;
         if (u_glow_boxes[i].z > 0.1 && intensity > 0.002) {
@@ -316,15 +344,14 @@
             float h = clamp(halo * intensity, 0.0, 1.0);
             if (h > maxHalo) {
               maxHalo = h;
-              // Amber by default, white where a box asks for it, as the Ko-fi
-              // halo does
-              haloCol = mix(c_amber, vec3(1.0), u_glow_params[i].z);
+              haloWhite = u_glow_params[i].z;
             }
           }
         }
       }
 
       if (maxHalo > 0.001) {
+        vec3 haloCol = mix(complementOf(col), vec3(1.0), haloWhite);
         col = mix(col, haloCol, maxHalo * 0.85);
       }
 
