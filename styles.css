@@ -72,7 +72,7 @@ input, button, select, textarea {
 }
 
 html {
-  font-size: 16px;
+  font-size: 18px;
   -webkit-text-size-adjust: 100%;
   background: var(--bg) url('/predichess/assets/images/nebula-poster.webp') center / cover no-repeat fixed;
   color: var(--text);
@@ -1763,6 +1763,8 @@ footer {
 }
 
 @media (max-width: 640px) {
+  html { font-size: 16px; }
+
   header { padding: 0 1rem; }
   footer { padding: 0.35rem 1rem; }
 
