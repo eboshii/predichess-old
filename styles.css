@@ -897,6 +897,165 @@ main#app-root,
   border-color: var(--danger);
 }
 
+/* -----------------------------------------------
+   3D Flip Confirmation Buttons (Horizontal Axis)
+----------------------------------------------- */
+.flip-confirm-wrapper {
+  perspective: 600px;
+  -webkit-perspective: 600px;
+  display: inline-block;
+  vertical-align: middle;
+  height: 28px;
+  min-width: 108px;
+  position: relative;
+}
+
+.flip-confirm-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transition: transform 0.38s cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+
+.flip-confirm-wrapper.is-flipped .flip-confirm-card {
+  transform: rotateX(180deg);
+}
+
+.flip-confirm-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.flip-confirm-front {
+  transform: rotateX(0deg);
+  z-index: 2;
+}
+
+.flip-confirm-wrapper.is-flipped .flip-confirm-front {
+  pointer-events: none;
+}
+
+.flip-confirm-front .btn-back-text,
+.flip-confirm-front .btn-resign-text {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+.flip-confirm-back {
+  transform: rotateX(180deg);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(18, 14, 28, 0.96);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+}
+
+.flip-confirm-wrapper:not(.is-flipped) .flip-confirm-back {
+  pointer-events: none;
+}
+
+.flip-back-resign {
+  border-color: rgba(224, 108, 117, 0.6);
+  background: rgba(28, 12, 18, 0.96);
+  box-shadow: 0 4px 12px rgba(224, 108, 117, 0.2);
+}
+
+.flip-back-exit {
+  border-color: rgba(240, 179, 101, 0.6);
+  background: rgba(20, 16, 28, 0.96);
+  box-shadow: 0 4px 12px rgba(240, 179, 101, 0.15);
+}
+
+.flip-confirm-prompt {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  user-select: none;
+}
+
+.flip-back-resign .flip-confirm-prompt {
+  color: var(--danger);
+}
+
+.flip-back-exit .flip-confirm-prompt {
+  color: var(--accent);
+}
+
+.flip-confirm-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-flip-action {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+}
+
+.btn-flip-no {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+  border-color: var(--border);
+}
+
+.btn-flip-no:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--text);
+  border-color: var(--text-dim);
+}
+
+.btn-flip-yes {
+  background: var(--accent);
+  color: #05030a;
+  border-color: var(--accent);
+}
+
+.btn-flip-yes:hover {
+  background: #ffc978;
+  border-color: #ffc978;
+}
+
+.btn-flip-yes.danger {
+  background: var(--danger);
+  color: #ffffff;
+  border-color: var(--danger);
+}
+
+.btn-flip-yes.danger:hover {
+  background: #ff7b85;
+  border-color: #ff7b85;
+}
+
 .room-pill-badge {
   background: rgba(240, 179, 101, 0.12);
   border: 1px solid var(--accent);
@@ -1383,7 +1542,32 @@ main#app-root,
   line-height: 1.6;
 }
 
-/* Host Room Modal specifics */
+/* Host Room specifics (Inline card & legacy box) */
+.host-room-card {
+  background: rgba(14, 10, 24, 0.95);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+  animation: fadeInHost 0.2s ease;
+}
+
+@keyframes fadeInHost {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.host-card-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+
 .host-room-box {
   text-align: center;
   max-width: 440px;

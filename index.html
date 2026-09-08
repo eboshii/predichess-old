@@ -141,19 +141,63 @@
             </button>
             <div class="menu-content">
               <div class="menu-inner">
-                <button id="btn-create-room" class="btn-primary btn-large">CREATE ROOM</button>
+                <div id="online-default-view">
+                  <button id="btn-create-room" class="btn-primary btn-large">CREATE ROOM</button>
 
-                <div class="menu-divider">
-                  <span>OR JOIN WITH CODE</span>
+                  <div class="menu-divider">
+                    <span>OR JOIN WITH CODE</span>
+                  </div>
+
+                  <form id="form-join-code" class="join-code-form" onsubmit="return false;">
+                    <div class="code-input-wrapper">
+                      <input type="text" id="input-join-code" class="code-input" placeholder="CODE" maxlength="5" autocomplete="off" spellcheck="false">
+                      <button id="btn-submit-join" class="btn-secondary" type="submit">JOIN</button>
+                    </div>
+                    <div id="join-error-msg" class="form-error" style="display: none;"></div>
+                  </form>
                 </div>
 
-                <form id="form-join-code" class="join-code-form" onsubmit="return false;">
-                  <div class="code-input-wrapper">
-                    <input type="text" id="input-join-code" class="code-input" placeholder="CODE" maxlength="5" autocomplete="off" spellcheck="false">
-                    <button id="btn-submit-join" class="btn-secondary" type="submit">JOIN</button>
+                <!-- In-Place Host Room View (No Popup Overlay) -->
+                <div id="modal-host-room" class="host-room-card" style="display: none;">
+                  <h3 class="host-card-title">ROOM CODE</h3>
+
+                  <!-- 5-character Invite Code -->
+                  <div class="invite-code-container">
+                    <div id="host-room-code-display" class="invite-code-display">-----</div>
                   </div>
-                  <div id="join-error-msg" class="form-error" style="display: none;"></div>
-                </form>
+
+                  <!-- Action Buttons: Copy Code / Copy Link -->
+                  <div class="invite-actions-row">
+                    <button id="btn-copy-room-code" class="btn-action-pill">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                      COPY CODE
+                    </button>
+                    <button id="btn-copy-room-link" class="btn-action-pill">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                      COPY LINK
+                    </button>
+                  </div>
+
+                  <!-- Timer control options -->
+                  <div class="host-timer-picker">
+                    <div class="timer-chips">
+                      <button class="timer-chip" data-timer="blitz_10m">10M</button>
+                      <button class="timer-chip active" data-timer="rapid_20m">20M</button>
+                      <button class="timer-chip" data-timer="rapid_30m">30M</button>
+                      <button class="timer-chip" data-timer="untimed">∞</button>
+                    </div>
+                  </div>
+
+                  <!-- Waiting indicator -->
+                  <div class="host-waiting-status">
+                    <span class="pulsing-amber-dot"></span>
+                    <span>Waiting for opponent...</span>
+                  </div>
+
+                  <div class="dialog-buttons" style="margin-top: 18px; justify-content: center;">
+                    <button id="btn-cancel-host-room" class="btn-dialog btn-dialog-cancel">CANCEL</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -205,7 +249,20 @@
           
           <!-- Opponent Bar -->
           <div class="opponent-bar-top">
-            <button id="btn-game-exit" class="btn-back-text" title="Exit to Lobby">← LOBBY</button>
+            <div class="flip-confirm-wrapper" id="flip-wrap-exit">
+              <div class="flip-confirm-card">
+                <div class="flip-confirm-face flip-confirm-front">
+                  <button id="btn-game-exit" class="btn-back-text" title="Exit to Lobby">← LOBBY</button>
+                </div>
+                <div class="flip-confirm-face flip-confirm-back flip-back-exit">
+                  <span class="flip-confirm-prompt">Sure?</span>
+                  <div class="flip-confirm-actions">
+                    <button type="button" id="btn-confirm-exit-yes" class="btn-flip-action btn-flip-yes">Yes</button>
+                    <button type="button" id="btn-confirm-exit-no" class="btn-flip-action btn-flip-no">No</button>
+                  </div>
+                </div>
+              </div>
+            </div>
             
             <div class="opp-info-group">
               <div class="player-dot opponent-dot"></div>
@@ -223,7 +280,21 @@
             </button>
 
             <span id="game-opponent-timer" class="game-timer" style="display: none;">--:--</span>
-            <button id="btn-game-resign" class="btn-resign-text">RESIGN</button>
+
+            <div class="flip-confirm-wrapper" id="flip-wrap-resign">
+              <div class="flip-confirm-card">
+                <div class="flip-confirm-face flip-confirm-front">
+                  <button id="btn-game-resign" class="btn-resign-text">RESIGN</button>
+                </div>
+                <div class="flip-confirm-face flip-confirm-back flip-back-resign">
+                  <span class="flip-confirm-prompt">Sure?</span>
+                  <div class="flip-confirm-actions">
+                    <button type="button" id="btn-confirm-resign-yes" class="btn-flip-action btn-flip-yes danger">Yes</button>
+                    <button type="button" id="btn-confirm-resign-no" class="btn-flip-action btn-flip-no">No</button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Board Wrapper -->
@@ -288,61 +359,8 @@
     </div>
 
     <!-- ============================================================
-         3. MODALS & OVERLAYS
+         3. NOTIFICATIONS
          ============================================================ -->
-
-    <!-- HOST ROOM MODAL -->
-    <div id="modal-host-room" class="dialog-overlay">
-      <div class="dialog-box host-room-box">
-        <h3 class="dialog-title">ROOM CODE</h3>
-
-        <!-- 5-character Invite Code -->
-        <div class="invite-code-container">
-          <div id="host-room-code-display" class="invite-code-display">-----</div>
-        </div>
-
-        <!-- Action Buttons: Copy Code / Copy Link -->
-        <div class="invite-actions-row">
-          <button id="btn-copy-room-code" class="btn-action-pill">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            COPY CODE
-          </button>
-          <button id="btn-copy-room-link" class="btn-action-pill">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-            COPY LINK
-          </button>
-        </div>
-
-        <!-- Timer control options -->
-        <div class="host-timer-picker">
-          <div class="timer-chips">
-            <button class="timer-chip" data-timer="blitz_10m">10M</button>
-            <button class="timer-chip active" data-timer="rapid_20m">20M</button>
-            <button class="timer-chip" data-timer="rapid_30m">30M</button>
-            <button class="timer-chip" data-timer="untimed">∞</button>
-          </div>
-        </div>
-
-        <!-- Waiting indicator -->
-        <div class="host-waiting-status">
-          <span class="pulsing-amber-dot"></span>
-          <span>Waiting for opponent...</span>
-        </div>
-
-        <div class="dialog-buttons" style="margin-top: 18px;">
-          <button id="btn-cancel-host-room" class="btn-dialog btn-dialog-cancel">CANCEL</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- GLOBAL DYNAMIC ALERT DIALOG (Resignation, Game Over) -->
-    <div id="global-dialog" class="dialog-overlay">
-      <div class="dialog-box">
-        <h4 class="dialog-title" id="dialog-title">Alert</h4>
-        <p class="dialog-message" id="dialog-message"></p>
-        <div class="dialog-buttons" id="dialog-buttons"></div>
-      </div>
-    </div>
 
     <!-- GLOBAL TOAST NOTIFICATIONS -->
     <div class="toast-container">

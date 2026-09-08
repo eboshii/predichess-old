@@ -254,6 +254,9 @@ function initLobbyHandlers() {
   btnCreate.addEventListener('click', () => {
     hostCode = generateGameCode();
     hostCodeDisplay.textContent = hostCode;
+    const defView = document.getElementById('online-default-view');
+    if (defView) defView.style.display = 'none';
+    modalHost.style.display = 'block';
     modalHost.classList.add('active');
 
     // Start hosting network session
@@ -263,6 +266,9 @@ function initLobbyHandlers() {
   btnCancelHost.addEventListener('click', () => {
     roomManager.disconnect();
     modalHost.classList.remove('active');
+    modalHost.style.display = 'none';
+    const defView = document.getElementById('online-default-view');
+    if (defView) defView.style.display = '';
   });
 
   btnCopyCode.addEventListener('click', () => {
@@ -352,7 +358,13 @@ function startHostingOnlineGame(code) {
     hostColor: 'WHITE'
   }, {
     onPlayerJoined: (guestInfo) => {
-      document.getElementById('modal-host-room').classList.remove('active');
+      const modalHost = document.getElementById('modal-host-room');
+      if (modalHost) {
+        modalHost.classList.remove('active');
+        modalHost.style.display = 'none';
+      }
+      const defView = document.getElementById('online-default-view');
+      if (defView) defView.style.display = '';
       showToast(`${guestInfo.opponentName} joined the game!`, 'success');
       SoundManager.playSound('genericnotify', 1.2);
 
@@ -479,10 +491,10 @@ function handleOnlineMessage(type, payload) {
             winner: myColor === PieceColor.WHITE ? 'white' : 'black'
           });
 
+          activeGame.endReason = 'Opponent King destroyed by secret prediction!';
           renderGameRoom();
-          showDialog('VICTORY!', 'Opponent moved their King into your secret prediction! Their King was destroyed.', [
-            { text: 'Lobby', type: 'confirm', action: () => exitGameToLobby() }
-          ]);
+          showToast('VICTORY! Opponent King destroyed by secret prediction!', 'success');
+          SoundManager.playSound('explosion', 1.0);
         } else {
           activeGame.events.push(trapEvent);
           activeGame.predictions.push(activeGame.pendingPrediction);
@@ -522,10 +534,10 @@ function handleOnlineMessage(type, payload) {
       if (payload.isKing) {
         activeGame.status = 'finished';
         activeGame.result = payload.winner === 'white' ? 'white_wins' : 'black_wins';
+        activeGame.endReason = 'Your King was vaporized by secret prediction!';
         renderGameRoom();
-        showDialog('DEFEAT', 'You moved your King into opponent\'s secret prediction! King vaporized.', [
-          { text: 'Lobby', type: 'cancel', action: () => exitGameToLobby() }
-        ]);
+        showToast('DEFEAT: You moved your King into opponent\'s secret prediction!', 'error');
+        SoundManager.playSound('explosion', 1.0);
       } else {
         // Our piece was destroyed, we must move again
         activeGame.phase = 'move';
@@ -552,10 +564,10 @@ function handleOnlineMessage(type, payload) {
     case 'GAME_RESIGN': {
       activeGame.status = 'finished';
       activeGame.result = myColor === PieceColor.WHITE ? 'white_wins' : 'black_wins';
+      activeGame.endReason = 'Opponent resigned the match.';
       renderGameRoom();
-      showDialog('VICTORY', 'Opponent resigned the match.', [
-        { text: 'Return to Lobby', type: 'confirm', action: () => exitGameToLobby() }
-      ]);
+      showToast('VICTORY! Opponent resigned the match.', 'success');
+      SoundManager.playSound('genericnotify', 1.2);
       break;
     }
   }
@@ -605,6 +617,17 @@ function enterActiveGameRoom() {
   document.getElementById('game-opponent-name').textContent =
     myColor === PieceColor.WHITE ? activeGame.blackUsername : activeGame.whiteUsername;
 
+  // Reset flip confirmation states
+  const resignWrap = document.getElementById('flip-wrap-resign');
+  if (resignWrap) {
+    resignWrap.classList.remove('is-flipped');
+    resignWrap.style.display = '';
+  }
+  const exitWrap = document.getElementById('flip-wrap-exit');
+  if (exitWrap) {
+    exitWrap.classList.remove('is-flipped');
+  }
+
   renderGameRoom();
   startGameClocks();
 }
@@ -614,6 +637,19 @@ function exitGameToLobby() {
   if (activeGameMode === 'online') {
     roomManager.disconnect();
   }
+  const modalHost = document.getElementById('modal-host-room');
+  if (modalHost) {
+    modalHost.classList.remove('active');
+    modalHost.style.display = 'none';
+  }
+  const defView = document.getElementById('online-default-view');
+  if (defView) defView.style.display = '';
+
+  const exitWrap = document.getElementById('flip-wrap-exit');
+  if (exitWrap) exitWrap.classList.remove('is-flipped');
+  const resignWrap = document.getElementById('flip-wrap-resign');
+  if (resignWrap) resignWrap.classList.remove('is-flipped');
+
   activeGame = null;
   activeGameId = null;
   activeGameMode = null;
@@ -701,13 +737,12 @@ function handleTimeout(colorLost) {
   activeGame.status = 'finished';
   activeGame.result = colorLost === 'white' ? 'black_wins' : 'white_wins';
   stopGameClocks();
-  renderGameRoom();
 
   const isMe = (colorLost === 'white' && myColor === PieceColor.WHITE) ||
                (colorLost === 'black' && myColor === PieceColor.BLACK);
-  showDialog('TIME OUT', isMe ? 'Your clock reached zero. You lost on time.' : 'Opponent ran out of time! You win.', [
-    { text: 'Return to Lobby', type: 'confirm', action: () => exitGameToLobby() }
-  ]);
+  activeGame.endReason = isMe ? 'Your clock reached zero. You lost on time.' : 'Opponent ran out of time! You win.';
+  renderGameRoom();
+  showToast(isMe ? 'TIME OUT: You lost on time.' : 'VICTORY: Opponent ran out of time!', isMe ? 'error' : 'success');
 }
 
 // --- RENDER GAME ROOM ---
@@ -838,16 +873,34 @@ function updateGameHUD() {
   if (!banner || !activeGame) return;
 
   if (activeGame.status === 'finished') {
-    if (activeGame.result === 'white_wins') {
-      banner.textContent = myColor === PieceColor.WHITE ? 'YOU WON THE MATCH!' : 'WHITE WON THE MATCH';
-      banner.style.color = myColor === PieceColor.WHITE ? 'var(--accent)' : 'var(--danger)';
-    } else if (activeGame.result === 'black_wins') {
-      banner.textContent = myColor === PieceColor.BLACK ? 'YOU WON THE MATCH!' : 'BLACK WON THE MATCH';
-      banner.style.color = myColor === PieceColor.BLACK ? 'var(--accent)' : 'var(--danger)';
-    } else {
-      banner.textContent = 'MATCH DRAW';
-      banner.style.color = 'var(--muted)';
+    const resignWrap = document.getElementById('flip-wrap-resign');
+    if (resignWrap) {
+      resignWrap.classList.remove('is-flipped');
+      resignWrap.style.display = 'none';
     }
+    const exitWrap = document.getElementById('flip-wrap-exit');
+    if (exitWrap) {
+      exitWrap.classList.remove('is-flipped');
+    }
+
+    const isWinner = (activeGame.result === 'white_wins' && myColor === PieceColor.WHITE) ||
+                     (activeGame.result === 'black_wins' && myColor === PieceColor.BLACK);
+    const isDraw = activeGame.result === 'draw';
+
+    let outcomeTag = isDraw ? 'DRAW' : isWinner ? 'VICTORY' : 'DEFEAT';
+    if (activeGame.endReason) {
+      banner.textContent = `${outcomeTag} • ${activeGame.endReason.toUpperCase()}`;
+    } else {
+      if (activeGame.result === 'white_wins') {
+        banner.textContent = myColor === PieceColor.WHITE ? 'VICTORY • YOU WON THE MATCH!' : 'DEFEAT • WHITE WON THE MATCH';
+      } else if (activeGame.result === 'black_wins') {
+        banner.textContent = myColor === PieceColor.BLACK ? 'VICTORY • YOU WON THE MATCH!' : 'DEFEAT • BLACK WON THE MATCH';
+      } else {
+        banner.textContent = 'MATCH DRAW';
+      }
+    }
+    banner.style.color = isWinner ? 'var(--accent)' : isDraw ? 'var(--muted)' : 'var(--danger)';
+    banner.style.fontWeight = '700';
     return;
   }
 
@@ -1200,11 +1253,11 @@ function handleBotTrap(game, uci) {
     game.status = 'finished';
     game.result = 'black_wins';
     game.pendingPrediction = '';
+    game.endReason = 'You moved King into bot prediction!';
     saveBotGame(game);
     renderGameRoom();
-    showDialog('DEFEAT', 'You moved your King into the bot\'s prediction! Game over.', [
-      { text: 'Lobby', type: 'cancel', action: () => exitGameToLobby() }
-    ]);
+    showToast('DEFEAT: Your King was vaporized by the bot\'s prediction!', 'error');
+    SoundManager.playSound('explosion', 1.0);
   } else {
     game.events.push(trapEvent);
     game.predictions.push(game.pendingPrediction);
@@ -1257,11 +1310,11 @@ function onBotWorkerResponse(data) {
       // Checkmate or stalemate
       activeGame.status = 'finished';
       activeGame.result = 'white_wins';
+      activeGame.endReason = 'Checkmate! You defeated the bot.';
       saveBotGame(activeGame);
       renderGameRoom();
-      showDialog('VICTORY', 'Checkmate! You defeated the bot.', [
-        { text: 'Lobby', type: 'confirm', action: () => exitGameToLobby() }
-      ]);
+      showToast('VICTORY! Checkmate! You defeated the bot.', 'success');
+      SoundManager.playSound('genericnotify', 1.2);
       return;
     }
 
@@ -1381,37 +1434,85 @@ function handlePassPlayPrediction(uci) {
 
 // --- GAME EVENT HANDLERS (Resign, Exit, Review) ---
 function initGameHandlers() {
-  document.getElementById('btn-game-exit').addEventListener('click', () => {
-    if (activeGame && activeGame.status === 'active') {
-      showDialog('EXIT MATCH', 'Leave the current match and return to the lobby?', [
-        { text: 'Leave', type: 'danger', action: () => exitGameToLobby() },
-        { text: 'Cancel', type: 'cancel' }
-      ]);
-    } else {
-      exitGameToLobby();
-    }
-  });
+  const exitWrap = document.getElementById('flip-wrap-exit');
+  const btnExit = document.getElementById('btn-game-exit');
+  const btnExitYes = document.getElementById('btn-confirm-exit-yes');
+  const btnExitNo = document.getElementById('btn-confirm-exit-no');
 
-  document.getElementById('btn-game-resign').addEventListener('click', () => {
-    if (!activeGame || activeGame.status !== 'active') return;
-    showDialog('RESIGN MATCH', 'Are you sure you want to resign this game?', [
-      {
-        text: 'Resign',
-        type: 'danger',
-        action: () => {
-          if (activeGameMode === 'online') {
-            roomManager.send('GAME_RESIGN', {});
-          }
-          activeGame.status = 'finished';
-          activeGame.result = myColor === PieceColor.WHITE ? 'black_wins' : 'white_wins';
-          renderGameRoom();
-          showDialog('MATCH CONCLUDED', 'You resigned the game.', [
-            { text: 'Return to Lobby', type: 'confirm', action: () => exitGameToLobby() }
-          ]);
-        }
-      },
-      { text: 'Cancel', type: 'cancel' }
-    ]);
+  if (btnExit) {
+    btnExit.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (activeGame && activeGame.status === 'active') {
+        const resignWrap = document.getElementById('flip-wrap-resign');
+        if (resignWrap) resignWrap.classList.remove('is-flipped');
+        exitWrap.classList.toggle('is-flipped');
+      } else {
+        exitGameToLobby();
+      }
+    });
+  }
+
+  if (btnExitYes) {
+    btnExitYes.addEventListener('click', (e) => {
+      e.stopPropagation();
+      exitWrap.classList.remove('is-flipped');
+      exitGameToLobby();
+    });
+  }
+
+  if (btnExitNo) {
+    btnExitNo.addEventListener('click', (e) => {
+      e.stopPropagation();
+      exitWrap.classList.remove('is-flipped');
+    });
+  }
+
+  const resignWrap = document.getElementById('flip-wrap-resign');
+  const btnResign = document.getElementById('btn-game-resign');
+  const btnResignYes = document.getElementById('btn-confirm-resign-yes');
+  const btnResignNo = document.getElementById('btn-confirm-resign-no');
+
+  if (btnResign) {
+    btnResign.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!activeGame || activeGame.status !== 'active') return;
+      if (exitWrap) exitWrap.classList.remove('is-flipped');
+      resignWrap.classList.toggle('is-flipped');
+    });
+  }
+
+  if (btnResignYes) {
+    btnResignYes.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resignWrap.classList.remove('is-flipped');
+      if (!activeGame || activeGame.status !== 'active') return;
+
+      if (activeGameMode === 'online') {
+        roomManager.send('GAME_RESIGN', {});
+      }
+      activeGame.status = 'finished';
+      activeGame.result = myColor === PieceColor.WHITE ? 'black_wins' : 'white_wins';
+      activeGame.endReason = 'You resigned the match.';
+      renderGameRoom();
+      showToast('Match concluded: You resigned.', 'info');
+    });
+  }
+
+  if (btnResignNo) {
+    btnResignNo.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resignWrap.classList.remove('is-flipped');
+    });
+  }
+
+  // Global click-outside handler to cancel open flip cards
+  document.addEventListener('click', (e) => {
+    if (exitWrap && !exitWrap.contains(e.target) && exitWrap.classList.contains('is-flipped')) {
+      exitWrap.classList.remove('is-flipped');
+    }
+    if (resignWrap && !resignWrap.contains(e.target) && resignWrap.classList.contains('is-flipped')) {
+      resignWrap.classList.remove('is-flipped');
+    }
   });
 
   // Review Navigation Controls
@@ -1452,27 +1553,9 @@ function initGameHandlers() {
   });
 }
 
-// --- GLOBAL MODAL / DIALOG HELPER ---
+// --- GLOBAL NOTIFICATION HELPER (Non-modal) ---
 function showDialog(title, message, buttons = []) {
-  const overlay = document.getElementById('global-dialog');
-  document.getElementById('dialog-title').textContent = title;
-  document.getElementById('dialog-message').textContent = message;
-
-  const btnContainer = document.getElementById('dialog-buttons');
-  btnContainer.innerHTML = '';
-
-  buttons.forEach(b => {
-    const btn = document.createElement('button');
-    btn.className = `btn-dialog ${b.type === 'danger' ? 'btn-dialog-danger' : b.type === 'cancel' ? 'btn-dialog-cancel' : 'btn-dialog-confirm'}`;
-    btn.textContent = b.text;
-    btn.addEventListener('click', () => {
-      overlay.classList.remove('active');
-      if (b.action) b.action();
-    });
-    btnContainer.appendChild(btn);
-  });
-
-  overlay.classList.add('active');
+  showToast(`${title}: ${message}`, 'info');
 }
 
 // --- GLOBAL TOAST HELPER ---
