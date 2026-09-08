@@ -243,10 +243,91 @@ body {
 }
 
 /* -----------------------------------------------
-   App Root & Screen Transitions
+   App Root & Screen Transitions (Cosmic 3px Bayer Dither)
 ----------------------------------------------- */
+@keyframes ditherExit {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  33% {
+    opacity: 0.75;
+    transform: scale(0.998);
+    -webkit-mask-image: var(--bayer-dither-high);
+    mask-image: var(--bayer-dither-high);
+    -webkit-mask-size: 12px 12px;
+    mask-size: 12px 12px;
+  }
+  66% {
+    opacity: 0.45;
+    transform: scale(0.994);
+    -webkit-mask-image: var(--bayer-dither-med);
+    mask-image: var(--bayer-dither-med);
+    -webkit-mask-size: 12px 12px;
+    mask-size: 12px 12px;
+  }
+  90% {
+    opacity: 0.15;
+    transform: scale(0.990);
+    -webkit-mask-image: var(--bayer-dither-low);
+    mask-image: var(--bayer-dither-low);
+    -webkit-mask-size: 12px 12px;
+    mask-size: 12px 12px;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.988);
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+@keyframes ditherEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(3px) scale(0.990);
+    -webkit-mask-image: var(--bayer-dither-low);
+    mask-image: var(--bayer-dither-low);
+    -webkit-mask-size: 12px 12px;
+    mask-size: 12px 12px;
+  }
+  33% {
+    opacity: 0.45;
+    transform: translateY(2px) scale(0.994);
+    -webkit-mask-image: var(--bayer-dither-med);
+    mask-image: var(--bayer-dither-med);
+    -webkit-mask-size: 12px 12px;
+    mask-size: 12px 12px;
+  }
+  66% {
+    opacity: 0.80;
+    transform: translateY(1px) scale(0.998);
+    -webkit-mask-image: var(--bayer-dither-high);
+    mask-image: var(--bayer-dither-high);
+    -webkit-mask-size: 12px 12px;
+    mask-size: 12px 12px;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+.dither-exit {
+  animation: ditherExit 85ms steps(4) forwards !important;
+  pointer-events: none !important;
+}
+
+.dither-enter {
+  animation: ditherEnter 130ms steps(4) forwards !important;
+}
+
 #app-root {
-  flex: 1;
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -256,7 +337,6 @@ body {
 .screen {
   display: none;
   opacity: 0;
-  transition: opacity 0.25s ease;
   width: 100%;
   flex: 1;
 }

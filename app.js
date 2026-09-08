@@ -80,6 +80,7 @@ let passPlayBlindfoldPending = false;
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
+  initPageTransitions();
   initPlayerProfile();
   initLobbyHandlers();
   initGameHandlers();
@@ -88,12 +89,58 @@ document.addEventListener('DOMContentLoaded', () => {
   try { localStorage.removeItem('predichess_saved_bot_game'); } catch (_) {}
 });
 
+// --- PAGE & SCREEN TRANSITIONS (Cosmic 3px Bayer Dither) ---
+function initPageTransitions() {
+  const appRoot = document.getElementById('app-root');
+  if (appRoot) {
+    appRoot.classList.add('dither-enter');
+    setTimeout(() => appRoot.classList.remove('dither-enter'), 135);
+  }
+
+  // Intercept outbound navigation to eboshii.dev to play smooth dither exit transition
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a');
+    if (!link) return;
+
+    const href = link.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+    if (link.target === '_blank') return;
+
+    try {
+      const targetUrl = new URL(link.href, window.location.href);
+      if (
+        targetUrl.origin !== window.location.origin ||
+        targetUrl.pathname !== window.location.pathname
+      ) {
+        e.preventDefault();
+        const root = document.getElementById('app-root') || document.body;
+        root.classList.remove('dither-enter');
+        root.classList.add('dither-exit');
+        setTimeout(() => {
+          window.location.href = targetUrl.href;
+        }, 85);
+      }
+    } catch (_) {}
+  });
+}
+
 // --- SCREEN SWITCHER ---
 function showScreen(screenId) {
-  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+  const currentScreen = document.querySelector('.screen.active');
   const target = document.getElementById(`screen-${screenId}`);
-  if (target) {
-    target.classList.add('active');
+  if (!target || currentScreen === target) return;
+
+  if (currentScreen) {
+    currentScreen.classList.add('dither-exit');
+    setTimeout(() => {
+      currentScreen.classList.remove('active', 'dither-exit');
+      target.classList.add('active', 'dither-enter');
+      setTimeout(() => target.classList.remove('dither-enter'), 135);
+    }, 85);
+  } else {
+    document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+    target.classList.add('active', 'dither-enter');
+    setTimeout(() => target.classList.remove('dither-enter'), 135);
   }
 }
 
