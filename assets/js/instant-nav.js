@@ -330,8 +330,6 @@
         }
         const predCss = document.getElementById('predichess-css') || document.getElementById('predichess-stylesheet');
         if (predCss) predCss.disabled = true;
-        const eboshiiCss = document.getElementById('eboshii-main-css');
-        if (eboshiiCss) eboshiiCss.disabled = false;
       }
 
       // Update page title
@@ -353,7 +351,8 @@
         currentFooter.innerHTML = newFooter.innerHTML;
       }
 
-      // Update main class
+      // Update main ID and class
+      currentMain.id = newMain.id || '';
       currentMain.className = newMain.className;
 
       // Swap main content without touching the WebGL canvas
@@ -372,10 +371,6 @@
 
       // Handle Predichess specific assets & initialization
       if (isPredichessRoute) {
-        // Disable main site CSS so Predichess layout has full unconstrained space
-        const eboshiiCss = document.getElementById('eboshii-main-css');
-        if (eboshiiCss) eboshiiCss.disabled = true;
-
         // Ensure Predichess CSS is loaded and active
         let predCss = document.getElementById('predichess-css') || document.getElementById('predichess-stylesheet');
         if (!predCss) {
@@ -404,20 +399,8 @@
           await import(appJsUrl);
         }
       } else {
-        // If moving to non-predichess page, ensure main css is active
-        let eboshiiCss = document.getElementById('eboshii-main-css');
-        if (!eboshiiCss) {
-          const docCss = doc.querySelector('link[href*="main.css"]');
-          if (docCss) {
-            eboshiiCss = document.createElement('link');
-            eboshiiCss.id = 'eboshii-main-css';
-            eboshiiCss.rel = 'stylesheet';
-            eboshiiCss.href = new URL(docCss.getAttribute('href'), url).href;
-            document.head.appendChild(eboshiiCss);
-          }
-        } else {
-          eboshiiCss.disabled = false;
-        }
+        const predCss = document.getElementById('predichess-css') || document.getElementById('predichess-stylesheet');
+        if (predCss) predCss.disabled = true;
       }
 
       // Update nav highlights

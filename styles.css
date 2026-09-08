@@ -328,26 +328,36 @@ body {
 
 main#app-root,
 #app-root {
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   position: relative;
   width: 100%;
-  max-width: none;
-  margin: 0;
-  padding: 0;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 0;
 }
 
 .screen {
   display: none;
   opacity: 0;
   width: 100%;
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .screen.active {
   display: flex;
+  flex-direction: column;
   opacity: 1;
+}
+
+#screen-lobby.screen.active {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 /* -----------------------------------------------
@@ -438,8 +448,8 @@ main#app-root,
 .lobby-container {
   max-width: 440px;
   width: 100%;
-  margin: 5vh auto 0;
-  padding: 2rem 1.5rem 3rem;
+  margin: auto auto;
+  padding: 1.5rem 1.5rem;
   display: flex;
   flex-direction: column;
 }
@@ -471,10 +481,15 @@ main#app-root,
   background: var(--bg-card);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
   border-radius: 4px;
   overflow: hidden;
   isolation: isolate;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+}
+
+.menu-section:hover {
+  border-color: var(--border-strong);
 }
 
 /* Inner dither veil - identical to crypto-panel & tip jar on eboshii.dev */
@@ -485,31 +500,16 @@ main#app-root,
   z-index: -1;
   background:
     linear-gradient(150deg,
-      rgba(81, 22, 59, 0.55) 0%,
-      rgba(32, 16, 56, 0.45) 45%,
-      rgba(14, 63, 82, 0.20) 100%);
+      rgba(81, 22, 59, 0.45) 0%,
+      rgba(32, 16, 56, 0.35) 45%,
+      rgba(14, 63, 82, 0.15) 100%);
   -webkit-mask-image: var(--bayer-dither-med);
   mask-image: var(--bayer-dither-med);
   -webkit-mask-size: 12px 12px;
   mask-size: 12px 12px;
   pointer-events: none;
   opacity: 0.9;
-  transition: background 0.25s ease, opacity 0.25s ease, -webkit-mask-image 0.25s ease;
-}
-
-/* Dither gradient border - delicate 1px border masked with Bayer dither pattern */
-.menu-section::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 4px;
-  pointer-events: none;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(245, 240, 232, 0.45) 0%, rgba(179, 168, 152, 0.25) 50%, rgba(245, 240, 232, 0.15) 100%);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  transition: background 0.25s ease, box-shadow 0.25s ease;
+  transition: background 0.25s ease, opacity 0.25s ease;
 }
 
 .menu-section:hover::before {
@@ -518,25 +518,21 @@ main#app-root,
   opacity: 1;
 }
 
-.menu-section:hover::after {
-  background: linear-gradient(135deg, rgba(245, 240, 232, 0.70) 0%, rgba(240, 179, 101, 0.45) 50%, rgba(245, 240, 232, 0.25) 100%);
+/* Selected state: border turns orange/gold and glows */
+.menu-section.open {
+  border-color: var(--accent);
+  box-shadow: 0 0 24px rgba(240, 179, 101, 0.25);
 }
 
-/* Selected state: Dithered gradient border turns orange/gold */
 .menu-section.open::before {
   background:
     linear-gradient(150deg,
-      rgba(174, 93, 29, 0.65) 0%,
-      rgba(81, 22, 59, 0.50) 45%,
-      rgba(240, 179, 101, 0.28) 100%);
+      rgba(174, 93, 29, 0.55) 0%,
+      rgba(81, 22, 59, 0.40) 45%,
+      rgba(240, 179, 101, 0.22) 100%);
   -webkit-mask-image: var(--bayer-dither-high);
   mask-image: var(--bayer-dither-high);
   opacity: 1;
-}
-
-.menu-section.open::after {
-  background: linear-gradient(135deg, #F0B365 0%, #A6753B 48%, #FFD9A0 100%);
-  box-shadow: 0 0 20px rgba(240, 179, 101, 0.25);
 }
 
 .menu-btn {
@@ -1645,8 +1641,9 @@ main#app-root,
 ----------------------------------------------- */
 .site-footer {
   margin-top: auto;
+  flex-shrink: 0;
   border-top: 1px solid var(--border);
-  padding: 1.25rem 2rem;
+  padding: 0.85rem 1.5rem;
   text-align: center;
   color: var(--muted);
   font-size: var(--fs-xs, 0.8rem);
@@ -1656,6 +1653,11 @@ main#app-root,
   -webkit-backdrop-filter: blur(10px);
   position: relative;
   z-index: 20;
+}
+
+/* Ensure global kofi host iframe never renders on Predichess */
+#global-kofi-host {
+  display: none !important;
 }
 
 .footer-inner {

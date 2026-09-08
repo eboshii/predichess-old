@@ -80,8 +80,6 @@ let passPlayBlindfoldPending = false;
 
 // --- INITIALIZATION & LIFECYCLE ---
 export function initApp() {
-  cleanupApp();
-
   activeGameMode = null;
   activeGameId = null;
   activeGame = null;
