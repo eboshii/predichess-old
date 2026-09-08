@@ -1,34 +1,50 @@
 # Predichess Web Client
 
-A sleek, premium widescreen static web client companion for the **Predichess** Android application.
+A tactical chess variant web client stylised after **[eboshii.dev](https://eboshii.github.io/)**, featuring hidden move predictions, piece destruction mechanics, and instant 2-player matches with 5-character invite codes.
 
-This web client is designed specifically for widescreen laptop and desktop layouts, offering an identical, synchronized gameplay experience alongside native Android players by interfacing with the same real-time Firebase Auth and Cloud Firestore backends.
+## ⚔️ Game Mechanics: Predict & Obliterate
+*   **Traditional Foundations:** Standard chess movements, promotions, castling, and en passant rules apply.
+*   **The Secret Prediction:** Immediately after each move, the player secretly wagers on the exact piece and destination square the opponent will choose next.
+*   **Springing the Trap:** If the opponent makes the predicted move, their piece is instantly destroyed and vaporized! They forfeit that piece and must make another move.
+*   **King Trap Sudden Death:** Successfully predicting the opponent King's move vaporizes their King for an immediate victory!
 
-## ⚔️ Cyber-Tactical Features
-*   **Widescreen Grid Deck:** Left-hand board panel centered side-by-side with a detailed move action history, turn indicators, and player cards.
-*   **Vector SVGs:** Inline vector SVG chess pieces styled in flat dark cyberpunk gradients, rendering perfectly on high-resolution laptop screens.
-*   **Real-time Handshake:** Firestore subscriptions capture and propagate move completions, sprung traps, checks, and resignations instantly.
-*   **Full Review Mode:** Timeline navigation buttons (`⏮`, `◀`, `▶`) and scroll-log item clicks freeze the live board to let players examine previous states, with a dedicated `LIVE` button to jump back into active sync.
-*   **Pulsing Trap Springs:** Glowing grid borders and animated expanding shockwave rings illuminate vaporized piece cells.
+## ✨ Visuals & eboshii.dev Theme
+*   **Retro Cosmic Design Tokens:** Deep cosmic obsidian background (`#05030a`), warm ivory typography (`#F5F0E8`), sand muted accents (`#B3A898`), and warm retro gold highlights (`#F0B365`).
+*   **WebGL Nebula Shader:** Fullscreen real-time dithered pixelated starfield background ported directly from `eboshii.dev` with fallback poster support.
+*   **Translucent Glass Surfaces:** Header and cards rendered with subtle ivory/gold borders and backdrop blur.
+*   **Antique Ivory & Cosmic Slate Chessboard:** Custom square colors (`#D6CEBD` and `#382A4F`) with glowing gold selection outlines, check warnings, and animated explosive shockwaves for sprung traps.
+*   **Vector Chess Pieces:** Tailored pearl-white and obsidian-violet chess vectors matching the cosmic palette.
+
+## 🎮 Gameplay Modes (Zero Login Required)
+1.  **Online 2-Player (5-Character Invite Codes):**
+    *   Click **Create 2-Player Game** to generate an instant 5-character room code (e.g. `K9X2B`).
+    *   Share the code or 1-click invite link (`https://eboshii.github.io/predichess/?code=K9X2B`).
+    *   The opponent enters the code or opens the link to join immediately—no accounts, no passwords, no Google login required.
+    *   Synchronized in real time via redundant WebSocket pub/sub (MQTT) and WebRTC DataChannel (PeerJS).
+2.  **Practice vs Offline Bot:**
+    *   Challenge a client-side AI engine powered by a background web worker.
+    *   Selectable ELO ratings: 800 (Novice), 1200 (Medium), 1600 (Hard), 2000 (Expert).
+    *   Full offline auto-save and resume capability.
+3.  **Pass & Play (Local 2-Player):**
+    *   Play on the same screen taking turns, with a blindfold transition overlay to conceal secret predictions.
 
 ## 📂 Project Structure
-*   `index.html` — Document layouts, auth modals, tabs, grid containers, and logs.
-*   `styles.css` — Custom stylesheet using CSS variables to implement the dark navy cyberpunk palette, outlined Material-style inputs, and CSS keyframe animations.
-*   `chess.js` — Self-contained chess engine in ES6 that perfectly models the Kotlin game validation rules.
-*   `app.js` — Web controller binding DOM handlers, coordinate conversions, drag-and-drop actions, and Firebase listeners.
+*   `index.html` — Document layout, sticky eboshii header, lobby mode cards, chessboard deck, and dialogs.
+*   `styles.css` — CSS design tokens, typography scale (`Space Grotesk`, `Inter`, `EB Garamond`, `JetBrains Mono`), glassmorphic panels, and board styles.
+*   `app.js` — Core game controller, coordinate conversions, drag-and-drop actions, review navigation (`⏮`, `◀`, `▶`, `LIVE`), HUD banners, and bot loop.
+*   `network.js` — Zero-backend multiplayer manager handling room codes, WebRTC (PeerJS), and MQTT over WebSocket with automatic fallback.
+*   `bot-worker.js` — Minimax bot engine running off the main thread.
+*   `chess.js` — Custom chess engine modeling movement validation and Predichess trap rules.
+*   `assets/` — WebGL nebula shader (`nebula-bg.js`) and poster image (`nebula-poster.webp`).
+*   `sounds/` — Audio assets for moves, captures, explosions, time warnings, and notifications.
 
 ## 🚀 Easy Hosting on GitHub Pages
-This repository is 100% static and zero-dependency, meaning it can be hosted completely free on **GitHub Pages**:
-
-1. Create a **public** repository named `predichess` on GitHub.
-2. Push this folder to your repository:
+This repository is completely static and serverless:
+1. Push to your repository:
    ```bash
-   git init
    git add .
-   git commit -m "feat: initial release of Predichess Web"
-   git branch -M main
-   git remote add origin https://github.com/your-username/predichess.git
-   git push -u origin main
+   git commit -m "feat: redesign after eboshii.dev and implement 5-letter code multiplayer"
+   git push origin main
    ```
-3. In your GitHub repository's **Settings** -> **Pages**, set **Source** to `Deploy from a branch` and choose the `main` branch, `/ (root)` folder.
-4. Click **Save**. The website will be live in seconds at `https://your-username.github.io/predichess/`!
+2. In GitHub repository **Settings** -> **Pages**, set **Source** to `Deploy from a branch` (`main`, `/ (root)`).
+3. The site will be live at `https://your-username.github.io/predichess/`!
