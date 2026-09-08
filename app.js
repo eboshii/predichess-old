@@ -850,7 +850,7 @@ function renderBoardGrid() {
       // Render Piece
       if (piece) {
         const pieceEl = document.createElement('div');
-        pieceEl.className = 'piece';
+        pieceEl.className = `piece ${piece.color === PieceColor.WHITE ? 'piece-white' : 'piece-black'}`;
         pieceEl.innerHTML = getPieceSvg(piece.type, piece.color === PieceColor.WHITE);
         sq.appendChild(pieceEl);
       }
@@ -1578,9 +1578,9 @@ function showToast(message, type = 'info') {
 function getPieceSvg(type, isWhite) {
   const whiteFill = '#FDFBF7';
   const whiteStroke = '#221C2B';
-  const blackFill = '#1C1527';
-  const blackStroke = '#0A0710';
-  const blackInnerStroke = '#E0D5C3';
+  const blackFill = '#1A1225';
+  const blackStroke = '#584470';
+  const blackInnerStroke = '#FAF5EC';
 
   if (isWhite) {
     switch (type) {

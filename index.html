@@ -297,27 +297,82 @@
             </div>
           </div>
 
-          <!-- Board Wrapper -->
-          <div class="board-wrapper">
-            <div id="chess-board-grid" class="chess-board">
-              <!-- JS Grid Generation -->
-            </div>
-            
-            <!-- Pawn Promotion Modal -->
-            <div id="promotion-dialog" class="promotion-overlay">
-              <div class="promotion-box">
-                <div class="promo-option" data-promo="QUEEN" id="promo-q"></div>
-                <div class="promo-option" data-promo="ROOK" id="promo-r"></div>
-                <div class="promo-option" data-promo="BISHOP" id="promo-b"></div>
-                <div class="promo-option" data-promo="KNIGHT" id="promo-n"></div>
+          <!-- Board Stage with Dithered Gradient Aura -->
+          <div class="board-stage" data-nx-glow="white">
+            <div class="board-dither-aura" aria-hidden="true">
+              <!-- Top edge (8 columns: L D L D L D L D) -->
+              <div class="aura-edge aura-edge-top">
+                <span class="aura-cell light"></span>
+                <span class="aura-cell dark"></span>
+                <span class="aura-cell light"></span>
+                <span class="aura-cell dark"></span>
+                <span class="aura-cell light"></span>
+                <span class="aura-cell dark"></span>
+                <span class="aura-cell light"></span>
+                <span class="aura-cell dark"></span>
               </div>
+              <!-- Bottom edge (8 columns: D L D L D L D L) -->
+              <div class="aura-edge aura-edge-bottom">
+                <span class="aura-cell dark"></span>
+                <span class="aura-cell light"></span>
+                <span class="aura-cell dark"></span>
+                <span class="aura-cell light"></span>
+                <span class="aura-cell dark"></span>
+                <span class="aura-cell light"></span>
+                <span class="aura-cell dark"></span>
+                <span class="aura-cell light"></span>
+              </div>
+              <!-- Left edge (8 rows: L D L D L D L D) -->
+              <div class="aura-edge aura-edge-left">
+                <span class="aura-cell light"></span>
+                <span class="aura-cell dark"></span>
+                <span class="aura-cell light"></span>
+                <span class="aura-cell dark"></span>
+                <span class="aura-cell light"></span>
+                <span class="aura-cell dark"></span>
+                <span class="aura-cell light"></span>
+                <span class="aura-cell dark"></span>
+              </div>
+              <!-- Right edge (8 rows: D L D L D L D L) -->
+              <div class="aura-edge aura-edge-right">
+                <span class="aura-cell dark"></span>
+                <span class="aura-cell light"></span>
+                <span class="aura-cell dark"></span>
+                <span class="aura-cell light"></span>
+                <span class="aura-cell dark"></span>
+                <span class="aura-cell light"></span>
+                <span class="aura-cell dark"></span>
+                <span class="aura-cell light"></span>
+              </div>
+              <!-- 4 Corners matching adjacent vertices -->
+              <div class="aura-corner aura-corner-tl light"></div>
+              <div class="aura-corner aura-corner-tr dark"></div>
+              <div class="aura-corner aura-corner-bl dark"></div>
+              <div class="aura-corner aura-corner-br light"></div>
             </div>
 
-            <!-- Pass & Play Transition Screen -->
-            <div id="pass-play-dialog" class="pass-play-overlay" style="display: none;">
-              <div class="pass-play-card">
-                <h3 id="pass-play-title" class="pass-play-title">PASS DEVICE</h3>
-                <button id="btn-pass-play-continue" class="btn-primary" style="margin-top: 12px;">CONTINUE</button>
+            <!-- Board Wrapper -->
+            <div class="board-wrapper">
+              <div id="chess-board-grid" class="chess-board">
+                <!-- JS Grid Generation -->
+              </div>
+              
+              <!-- Pawn Promotion Modal -->
+              <div id="promotion-dialog" class="promotion-overlay">
+                <div class="promotion-box">
+                  <div class="promo-option" data-promo="QUEEN" id="promo-q"></div>
+                  <div class="promo-option" data-promo="ROOK" id="promo-r"></div>
+                  <div class="promo-option" data-promo="BISHOP" id="promo-b"></div>
+                  <div class="promo-option" data-promo="KNIGHT" id="promo-n"></div>
+                </div>
+              </div>
+
+              <!-- Pass & Play Transition Screen -->
+              <div id="pass-play-dialog" class="pass-play-overlay" style="display: none;">
+                <div class="pass-play-card">
+                  <h3 id="pass-play-title" class="pass-play-title">PASS DEVICE</h3>
+                  <button id="btn-pass-play-continue" class="btn-primary" style="margin-top: 12px;">CONTINUE</button>
+                </div>
               </div>
             </div>
           </div>

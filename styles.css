@@ -24,15 +24,17 @@
   --danger:          #E06C75;
   --success:         #98C379;
 
-  /* Chess Board Tokens (Antique Ivory & Cosmic Violet) */
-  --board-light:       #D6CEBD;
-  --board-dark:        #382A4F;
-  --coord-light:       #6E5D48;
-  --coord-dark:        #B3A898;
-  --highlight-select:  rgba(240, 179, 101, 0.42);
+  /* Chess Board Tokens (Starlight Lunar Ivory & Deep Cosmic Void) */
+  --board-light:       #DDD5C7;
+  --board-dark:        #231735;
+  --coord-light:       #5C4D3A;
+  --coord-dark:        rgba(240, 179, 101, 0.85);
+  --highlight-select:  rgba(240, 179, 101, 0.38);
   --highlight-last:    rgba(240, 179, 101, 0.22);
   --highlight-check:   rgba(224, 108, 117, 0.45);
   --highlight-trap:    rgba(240, 179, 101, 0.8);
+  --aura-light:        rgba(221, 213, 199, 0.82);
+  --aura-dark:         rgba(64, 40, 92, 0.90);
 
   /* Fonts matching eboshii.dev */
   --font-serif:   'EB Garamond', Georgia, serif;
@@ -1123,16 +1125,175 @@ main#app-root,
 /* -----------------------------------------------
    Chess Board Styles
 ----------------------------------------------- */
-.board-wrapper {
+/* -----------------------------------------------
+   Chess Board Stage & Dithered Gradient Aura
+   (Dissolves square colors into the background nebula)
+----------------------------------------------- */
+.board-stage {
   position: relative;
   width: min(62vh, 75vw);
   height: min(62vh, 75vw);
-  background: var(--bg-card);
-  border: 1px solid var(--border-strong);
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The Dithered Gradient Aura:
+   Screened through eboshii's 12px Bayer ordered dither mask, matching adjacent square colors
+   and dissolving outward into the live background nebula */
+.board-dither-aura {
+  position: absolute;
+  inset: -48px;
+  pointer-events: none;
+  z-index: 0;
+  -webkit-mask-image: var(--bayer-dither-med);
+  mask-image: var(--bayer-dither-med);
+  -webkit-mask-size: 12px 12px;
+  mask-size: 12px 12px;
+  opacity: 0.95;
+  transition: opacity 0.2s ease;
+}
+
+.board-stage:hover .board-dither-aura {
+  -webkit-mask-image: var(--bayer-dither-high);
+  mask-image: var(--bayer-dither-high);
+  opacity: 1;
+}
+
+/* Subtle underlying nebula bloom behind the aura */
+.board-dither-aura::before {
+  content: '';
+  position: absolute;
+  inset: 16px;
+  background: radial-gradient(circle at 50% 50%, rgba(81, 22, 59, 0.55) 0%, rgba(32, 16, 56, 0.35) 50%, transparent 85%);
+  z-index: -1;
+}
+
+/* Aura edges (48px wide extensions around the perimeter) */
+.aura-edge {
+  position: absolute;
+  pointer-events: none;
+}
+
+.aura-edge-top {
+  top: 0;
+  left: 48px;
+  right: 48px;
+  height: 48px;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+}
+
+.aura-edge-bottom {
+  bottom: 0;
+  left: 48px;
+  right: 48px;
+  height: 48px;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+}
+
+.aura-edge-left {
+  left: 0;
+  top: 48px;
+  bottom: 48px;
+  width: 48px;
+  display: grid;
+  grid-template-rows: repeat(8, 1fr);
+}
+
+.aura-edge-right {
+  right: 0;
+  top: 48px;
+  bottom: 48px;
+  width: 48px;
+  display: grid;
+  grid-template-rows: repeat(8, 1fr);
+}
+
+.aura-cell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Top edge: fades upward into the nebula, blending with adjacent squares */
+.aura-edge-top .aura-cell.light {
+  background: radial-gradient(ellipse 75% 100% at 50% 100%, var(--aura-light) 0%, rgba(221, 213, 199, 0.35) 45%, transparent 100%);
+}
+.aura-edge-top .aura-cell.dark {
+  background: radial-gradient(ellipse 75% 100% at 50% 100%, var(--aura-dark) 0%, rgba(64, 40, 92, 0.40) 45%, transparent 100%);
+}
+
+/* Bottom edge: fades downward into the nebula */
+.aura-edge-bottom .aura-cell.light {
+  background: radial-gradient(ellipse 75% 100% at 50% 0%, var(--aura-light) 0%, rgba(221, 213, 199, 0.35) 45%, transparent 100%);
+}
+.aura-edge-bottom .aura-cell.dark {
+  background: radial-gradient(ellipse 75% 100% at 50% 0%, var(--aura-dark) 0%, rgba(64, 40, 92, 0.40) 45%, transparent 100%);
+}
+
+/* Left edge: fades leftward into the nebula */
+.aura-edge-left .aura-cell.light {
+  background: radial-gradient(ellipse 100% 75% at 100% 50%, var(--aura-light) 0%, rgba(221, 213, 199, 0.35) 45%, transparent 100%);
+}
+.aura-edge-left .aura-cell.dark {
+  background: radial-gradient(ellipse 100% 75% at 100% 50%, var(--aura-dark) 0%, rgba(64, 40, 92, 0.40) 45%, transparent 100%);
+}
+
+/* Right edge: fades rightward into the nebula */
+.aura-edge-right .aura-cell.light {
+  background: radial-gradient(ellipse 100% 75% at 0% 50%, var(--aura-light) 0%, rgba(221, 213, 199, 0.35) 45%, transparent 100%);
+}
+.aura-edge-right .aura-cell.dark {
+  background: radial-gradient(ellipse 100% 75% at 0% 50%, var(--aura-dark) 0%, rgba(64, 40, 92, 0.40) 45%, transparent 100%);
+}
+
+/* Corners: radial falloff from corner vertex into the nebula */
+.aura-corner {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+}
+
+.aura-corner-tl {
+  top: 0;
+  left: 0;
+  background: radial-gradient(circle at 100% 100%, var(--aura-light) 0%, rgba(221, 213, 199, 0.35) 40%, transparent 100%);
+}
+
+.aura-corner-tr {
+  top: 0;
+  right: 0;
+  background: radial-gradient(circle at 0% 100%, var(--aura-dark) 0%, rgba(64, 40, 92, 0.40) 40%, transparent 100%);
+}
+
+.aura-corner-bl {
+  bottom: 0;
+  left: 0;
+  background: radial-gradient(circle at 100% 0%, var(--aura-dark) 0%, rgba(64, 40, 92, 0.40) 40%, transparent 100%);
+}
+
+.aura-corner-br {
+  bottom: 0;
+  right: 0;
+  background: radial-gradient(circle at 0% 0%, var(--aura-light) 0%, rgba(221, 213, 199, 0.35) 40%, transparent 100%);
+}
+
+.board-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-card);
+  border: 1px solid rgba(240, 179, 101, 0.32);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.9),
+    0 0 1px rgba(240, 179, 101, 0.4),
+    inset 0 0 0 1px rgba(240, 179, 101, 0.12);
+  z-index: 1;
 }
 
 .chess-board {
@@ -1151,35 +1312,41 @@ main#app-root,
   justify-content: center;
   align-items: center;
   user-select: none;
-  transition: background-color 0.12s ease;
+  transition: background-color 0.12s ease, box-shadow 0.12s ease;
 }
 
 .square.light {
   background-color: var(--board-light);
+  background-image: radial-gradient(circle at 45% 45%, #E6E0D5 0%, #C8BEAE 100%);
 }
 
 .square.dark {
   background-color: var(--board-dark);
+  background-image:
+    radial-gradient(1px 1px at 28% 32%, rgba(240, 179, 101, 0.20), transparent 100%),
+    radial-gradient(1px 1px at 74% 68%, rgba(215, 205, 235, 0.16), transparent 100%),
+    radial-gradient(ellipse at 50% 50%, #34224c 0%, #1c112b 100%);
 }
 
-/* Coordinate labels */
+/* Coordinate labels (astrogation telemetry style) */
 .coord-label {
   position: absolute;
   font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 600;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
   pointer-events: none;
   line-height: 1;
 }
 
 .coord-label.rank {
   top: 3px;
-  left: 3px;
+  left: 4px;
 }
 
 .coord-label.file {
   bottom: 3px;
-  right: 3px;
+  right: 4px;
 }
 
 .light .coord-label {
@@ -1188,21 +1355,23 @@ main#app-root,
 
 .dark .coord-label {
   color: var(--coord-dark);
+  text-shadow: 0 0 4px rgba(240, 179, 101, 0.4);
 }
 
 /* Highlights */
 .square.selected {
   background-color: var(--highlight-select) !important;
-  box-shadow: inset 0 0 0 2px var(--accent);
+  box-shadow: inset 0 0 0 2px var(--accent), 0 0 14px rgba(240, 179, 101, 0.35);
 }
 
 .square.last-move {
   background-color: var(--highlight-last) !important;
+  box-shadow: inset 0 0 8px rgba(240, 179, 101, 0.18);
 }
 
 .square.check {
   background-color: var(--highlight-check) !important;
-  box-shadow: inset 0 0 0 2px var(--danger);
+  box-shadow: inset 0 0 0 2px var(--danger), 0 0 16px rgba(224, 108, 117, 0.45);
 }
 
 .square.trap {
@@ -1211,19 +1380,62 @@ main#app-root,
 }
 
 @keyframes trapPulse {
-  from { box-shadow: inset 0 0 12px var(--accent); }
-  to { box-shadow: inset 0 0 24px #FF7A00; }
+  from { box-shadow: inset 0 0 12px var(--accent), 0 0 16px rgba(240, 179, 101, 0.4); }
+  to { box-shadow: inset 0 0 24px #FF7A00, 0 0 28px rgba(255, 122, 0, 0.6); }
 }
 
-/* Move target dots */
+/* Move target dots & orbital capture rings (tailored for light & dark squares) */
 .move-target-dot {
   position: absolute;
   width: 28%;
   height: 28%;
   border-radius: 50%;
-  background: rgba(240, 179, 101, 0.45);
   pointer-events: none;
   z-index: 4;
+}
+
+/* High-contrast dark obsidian/plum beacon with gold rim on white squares */
+.square.light .move-target-dot {
+  background: radial-gradient(circle, #251636 0%, #36224d 55%, rgba(54, 34, 77, 0.25) 100%);
+  box-shadow:
+    0 0 0 2px rgba(240, 179, 101, 0.95),
+    0 0 8px rgba(37, 22, 54, 0.45),
+    0 2px 5px rgba(0, 0, 0, 0.35);
+  animation: spaceTargetPulseLight 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes spaceTargetPulseLight {
+  0% {
+    transform: scale(0.92);
+    box-shadow: 0 0 0 1.5px rgba(240, 179, 101, 0.85), 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  100% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 2.5px rgba(240, 179, 101, 1), 0 0 10px rgba(240, 179, 101, 0.5), 0 2px 6px rgba(0, 0, 0, 0.45);
+  }
+}
+
+/* Radiant stellar amber/gold beacon on dark squares */
+.square.dark .move-target-dot {
+  background: radial-gradient(circle, #FFF2DC 15%, #F0B365 55%, rgba(240, 179, 101, 0.2) 100%);
+  box-shadow:
+    0 0 10px rgba(240, 179, 101, 0.9),
+    0 0 3px #FFF,
+    0 0 18px rgba(240, 179, 101, 0.5);
+  animation: spaceTargetPulseDark 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes spaceTargetPulseDark {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.85;
+    box-shadow: 0 0 8px rgba(240, 179, 101, 0.75), 0 0 2px #FFF;
+  }
+  100% {
+    transform: scale(1.08);
+    opacity: 1;
+    box-shadow: 0 0 14px rgba(240, 179, 101, 1), 0 0 5px #FFF, 0 0 22px rgba(240, 179, 101, 0.6);
+  }
 }
 
 .move-target-capture {
@@ -1231,12 +1443,44 @@ main#app-root,
   width: 86%;
   height: 86%;
   border-radius: 50%;
-  border: 3px solid rgba(240, 179, 101, 0.6);
   pointer-events: none;
   z-index: 4;
 }
 
-/* Pieces */
+.square.light .move-target-capture {
+  border: 3px solid rgba(45, 25, 65, 0.9);
+  box-shadow:
+    0 0 0 1.5px rgba(240, 179, 101, 0.85),
+    inset 0 0 8px rgba(45, 25, 65, 0.3);
+  animation: spaceCaptureRingLight 2.8s ease-in-out infinite alternate;
+}
+
+@keyframes spaceCaptureRingLight {
+  0% { transform: scale(0.96); }
+  100% {
+    transform: scale(1.03);
+    box-shadow: 0 0 0 2px rgba(240, 179, 101, 1), 0 0 10px rgba(240, 179, 101, 0.4), inset 0 0 10px rgba(45, 25, 65, 0.4);
+  }
+}
+
+.square.dark .move-target-capture {
+  border: 2.5px solid rgba(240, 179, 101, 0.9);
+  box-shadow:
+    0 0 12px rgba(240, 179, 101, 0.6),
+    inset 0 0 10px rgba(240, 179, 101, 0.35);
+  animation: spaceCaptureRingDark 2.8s ease-in-out infinite alternate;
+}
+
+@keyframes spaceCaptureRingDark {
+  0% { transform: scale(0.96); border-color: rgba(240, 179, 101, 0.75); }
+  100% {
+    transform: scale(1.03);
+    border-color: rgba(255, 210, 140, 1);
+    box-shadow: 0 0 18px rgba(240, 179, 101, 0.8), inset 0 0 14px rgba(240, 179, 101, 0.5);
+  }
+}
+
+/* Pieces (gentle zero-gravity floating depth & starlight contour) */
 .piece {
   width: 86%;
   height: 86%;
@@ -1249,9 +1493,45 @@ main#app-root,
   transition: transform 0.08s ease;
 }
 
-.piece:active {
+.piece-white svg {
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.65));
+  transition: filter 0.12s ease;
+}
+
+.piece-white:hover svg {
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.8));
+}
+
+.piece-white:active svg {
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 6px rgba(240, 179, 101, 0.35));
+}
+
+/* Black pieces: crisp luminous starlight silhouette rim so they never fade into dark squares */
+.piece-black svg {
+  filter:
+    drop-shadow(0 0 1.5px rgba(245, 240, 232, 0.65))
+    drop-shadow(0 0 4px rgba(240, 179, 101, 0.40))
+    drop-shadow(0 2px 6px rgba(0, 0, 0, 0.95));
+  transition: filter 0.12s ease;
+}
+
+.piece-black:hover svg {
+  filter:
+    drop-shadow(0 0 2.5px rgba(245, 240, 232, 0.85))
+    drop-shadow(0 0 8px rgba(240, 179, 101, 0.60))
+    drop-shadow(0 4px 10px rgba(0, 0, 0, 0.98));
+}
+
+.piece-black:active {
   cursor: grabbing;
   transform: scale(1.1);
+}
+
+.piece-black:active svg {
+  filter:
+    drop-shadow(0 0 3.5px rgba(240, 179, 101, 0.95))
+    drop-shadow(0 0 14px rgba(240, 179, 101, 0.7))
+    drop-shadow(0 8px 18px rgba(0, 0, 0, 0.98));
 }
 
 /* Pawn Promotion Overlay */
