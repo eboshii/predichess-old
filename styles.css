@@ -67,7 +67,7 @@
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
-  background: var(--bg) url('assets/images/nebula-poster.webp') center / cover no-repeat fixed;
+  background: var(--bg) url('/predichess/assets/images/nebula-poster.webp') center / cover no-repeat fixed;
   color: var(--text);
   font-family: var(--font-sans);
   height: 100%;

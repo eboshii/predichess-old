@@ -314,11 +314,15 @@
           resolve(link);
         };
         document.head.appendChild(link);
-        setTimeout(() => resolve(link), 600);
+        setTimeout(() => resolve(link), 500);
         return;
       }
 
       if (active) {
+        // Enforce the exact absolute target href
+        if (href && link.getAttribute('href') !== href && link.href !== href) {
+          link.href = href;
+        }
         link.disabled = false;
         link.media = 'all';
         if (link.sheet) {
@@ -331,7 +335,7 @@
           resolve(link);
         }, { once: true });
         link.addEventListener('error', () => resolve(link), { once: true });
-        setTimeout(() => resolve(link), 600);
+        setTimeout(() => resolve(link), 500);
       } else {
         link.disabled = true;
         link.media = 'not all';
@@ -367,6 +371,10 @@
         window.location.href = url.href;
         return;
       }
+
+      // Keep main completely hidden during DOM mutations and script setup to eliminate flash
+      currentMain.style.opacity = '0';
+      currentMain.style.visibility = 'hidden';
 
       const isPredichessRoute = url.pathname.includes('/predichess');
       const wasPredichessRoute = window.location.pathname.includes('/predichess');
@@ -438,9 +446,6 @@
       } else {
         currentMain.removeAttribute('class');
       }
-      if (currentMain.hasAttribute('style')) {
-        currentMain.removeAttribute('style');
-      }
 
       // Swap main content without touching the WebGL canvas
       currentMain.innerHTML = newMain.innerHTML;
@@ -463,6 +468,9 @@
         kofiHost.classList.toggle('active', isTip);
       }
 
+      // Scroll to top while still hidden
+      window.scrollTo({ top: 0, behavior: 'instant' });
+
       // Initialize or re-mount Predichess application
       if (isPredichessRoute) {
         if (typeof window.initPredichessApp === 'function') {
@@ -480,9 +488,6 @@
         window.history.pushState({}, '', url.href);
       }
 
-      // Scroll to top
-      window.scrollTo({ top: 0, behavior: 'instant' });
-
       // Run any page-specific scripts (news search, stats expandable table, etc.)
       runScripts(currentMain);
 
@@ -499,6 +504,10 @@
       }
 
       // 2. Cosmic Dither Crystallize In (130ms)
+      // Force layout calculation at opacity 0 before transition kicks in
+      void currentMain.offsetWidth;
+      currentMain.style.removeProperty('opacity');
+      currentMain.style.removeProperty('visibility');
       currentMain.classList.remove('dither-exit');
       currentMain.classList.add('dither-enter');
       setTimeout(() => {

@@ -6,7 +6,7 @@
   <title>Predichess</title>
   
   <!-- Web Favicon -->
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/svg+xml" href="/predichess/favicon.svg">
   
   <!-- Critical Anti-FOUC Tokens: Stagger content display until stylesheets & layout are ready -->
   <style>
@@ -40,14 +40,14 @@
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   
   <!-- Background preloads -->
-  <link rel="preload" href="assets/images/nebula-poster.webp" as="image" type="image/webp">
+  <link rel="preload" href="/predichess/assets/images/nebula-poster.webp" as="image" type="image/webp">
 
   <!-- Main Site CSS preloaded for instantaneous zero-flicker transition back to eboshii.dev -->
   <link rel="preload" href="/assets/css/main.css" as="style">
   <link rel="stylesheet" id="eboshii-main-css" href="/assets/css/main.css" disabled media="not all">
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" id="predichess-css" href="styles.css" onload="document.documentElement.classList.add('styles-loaded')">
+  <link rel="stylesheet" id="predichess-css" href="/predichess/styles.css" onload="document.documentElement.classList.add('styles-loaded')">
 
   <!-- Realtime Network Transports: MQTT + WebRTC PeerJS (deferred so they do not block initial render) -->
   <script id="script-mqtt" src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js" defer></script>
@@ -57,8 +57,8 @@
 
   <!-- Fullscreen WebGL Nebula Background from eboshii.dev -->
   <canvas id="nebula-bg"></canvas>
-  <script src="assets/js/nebula-bg.js"></script>
-  <script src="assets/js/instant-nav.js"></script>
+  <script src="/predichess/assets/js/nebula-bg.js"></script>
+  <script src="/predichess/assets/js/instant-nav.js"></script>
 
   <!-- Sticky Header matching eboshii.dev -->
   <header class="site-header">
@@ -362,7 +362,7 @@
   </div>
 
   <!-- Application Script Module -->
-  <script type="module" src="app.js"></script>
+  <script type="module" src="/predichess/app.js"></script>
 
 </body>
 </html>
