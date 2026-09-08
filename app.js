@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initGameHandlers();
   initBoardInteraction();
   checkUrlInviteCode();
-  checkBotSavedGame();
+  try { localStorage.removeItem('predichess_saved_bot_game'); } catch (_) {}
 });
 
 // --- SCREEN SWITCHER ---
@@ -158,7 +158,7 @@ function checkUrlInviteCode() {
 
 // --- LOBBY HANDLERS ---
 function initLobbyHandlers() {
-  // Accordion Menu Toggle
+  // Accordion Menu Toggle with dynamic shader glow color switching
   const sections = document.querySelectorAll('.menu-section');
   sections.forEach(sec => {
     const btn = sec.querySelector('.menu-btn');
@@ -167,11 +167,15 @@ function initLobbyHandlers() {
       const isOpen = sec.classList.contains('open');
       sections.forEach(s => {
         s.classList.remove('open');
+        s.setAttribute('data-nx-glow', 'white');
+        s._nxHot = false;
         const b = s.querySelector('.menu-btn');
         if (b) b.setAttribute('aria-expanded', 'false');
       });
       if (!isOpen) {
         sec.classList.add('open');
+        sec.setAttribute('data-nx-glow', 'amber');
+        sec._nxHot = true;
         btn.setAttribute('aria-expanded', 'true');
       }
     });
@@ -257,11 +261,6 @@ function initLobbyHandlers() {
 
   document.getElementById('btn-start-bot').addEventListener('click', () => {
     startBotGame(selectedBotElo);
-  });
-
-  const btnResumeBot = document.getElementById('btn-resume-bot');
-  btnResumeBot.addEventListener('click', () => {
-    resumeBotGame();
   });
 
   // 4. Pass & Play
@@ -557,7 +556,6 @@ function exitGameToLobby() {
   activeGameId = null;
   activeGameMode = null;
   showScreen('lobby');
-  checkBotSavedGame();
 }
 
 // --- GAME CLOCKS ---
@@ -1104,40 +1102,11 @@ function startBotGame(elo) {
     lastActionTime: Date.now()
   };
 
-  saveBotGame(activeGame);
   enterActiveGameRoom();
 }
 
-function resumeBotGame() {
-  const saved = localStorage.getItem('predichess_saved_bot_game');
-  if (!saved) return;
-  try {
-    activeGame = JSON.parse(saved);
-    activeGameMode = 'bot';
-    activeGameId = 'offline_bot';
-    myColor = PieceColor.WHITE;
-    isFlipped = false;
-    enterActiveGameRoom();
-  } catch (_) {}
-}
-
-function checkBotSavedGame() {
-  const btn = document.getElementById('btn-resume-bot');
-  if (!btn) return;
-  const saved = localStorage.getItem('predichess_saved_bot_game');
-  if (saved) {
-    btn.style.display = 'block';
-  } else {
-    btn.style.display = 'none';
-  }
-}
-
-function saveBotGame(game) {
-  if (game && game.status === 'active') {
-    localStorage.setItem('predichess_saved_bot_game', JSON.stringify(game));
-  } else {
-    localStorage.removeItem('predichess_saved_bot_game');
-  }
+function saveBotGame(_) {
+  // Resume functionality removed: games are not persisted across navigation
 }
 
 function handleBotModeMove(uci) {
