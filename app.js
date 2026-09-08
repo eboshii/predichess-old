@@ -163,6 +163,8 @@ function initPlayerProfile() {
 
   const profileBtn = document.getElementById('btn-player-profile');
   const modalEdit = document.getElementById('modal-edit-name');
+  if (!profileBtn || !modalEdit) return;
+
   const inputName = document.getElementById('input-player-name');
   const btnSave = document.getElementById('btn-save-name');
   const btnCancel = document.getElementById('btn-cancel-name');

@@ -19,6 +19,8 @@
   --border:          rgba(235, 225, 210, 0.18);
   --border-strong:   rgba(235, 225, 210, 0.32);
   --code-bg:         rgba(20, 14, 34, 0.88);
+  --max-w:           700px;
+  --max-w-wide:      1040px;
   --danger:          #E06C75;
   --success:         #98C379;
 
@@ -111,142 +113,188 @@ body {
 }
 
 /* -----------------------------------------------
-   Sticky Header (eboshii.dev style)
+   Header / Nav (matching eboshii.dev)
 ----------------------------------------------- */
-.site-header {
-  background: rgba(5, 3, 10, 0.75);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+header {
+  background: rgba(5, 3, 10, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   padding: 0 2rem;
   position: sticky;
   top: 0;
   z-index: 50;
-  height: 3.5rem;
-  display: flex;
-  align-items: center;
 }
 
-.header-nav {
-  max-width: 1200px;
-  width: 100%;
+nav {
+  max-width: var(--max-w);
   margin: 0 auto;
+  height: 3.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.nav-left {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
+.site-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
 }
 
 .site-title {
   font-family: var(--font-display);
-  font-size: 1.2rem;
+  font-size: var(--fs-lg);
   font-weight: 700;
   color: var(--text);
   text-decoration: none;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.045em;
+  line-height: 1;
   display: inline-flex;
   align-items: baseline;
 }
 
-.logo-name { color: var(--text); transition: color 0.15s; }
-.logo-tld { color: var(--accent); transition: color 0.15s; }
+.logo-name {
+  color: var(--text);
+  transition: color 0.15s;
+}
+
+.logo-tld {
+  color: var(--accent);
+  transition: color 0.15s;
+}
+
 .site-title:hover .logo-name { color: var(--accent); }
 
 .nav-slash {
   color: var(--muted);
   font-weight: 300;
-  opacity: 0.6;
+  opacity: 0.5;
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  user-select: none;
 }
 
 .nav-app-name {
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: var(--fs-sm);
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
   color: var(--accent);
-  text-transform: uppercase;
 }
 
-.nav-right {
+.nav-links {
   display: flex;
+  gap: 1.75rem;
   align-items: center;
-  gap: 1.25rem;
 }
 
-.player-profile-pill {
-  background: rgba(20, 14, 34, 0.7);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 4px 14px;
-  color: var(--text);
-  font-size: 0.8rem;
+.nav-links a {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.15s;
+  padding-bottom: 2px;
+  border-bottom: 1px solid transparent;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent-dim);
+}
+
+/* Nav Dropdown */
+.nav-dropdown {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+}
+
+.nav-dropdown-trigger {
+  background: none;
+  border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: var(--font-sans);
-}
-
-.player-profile-pill:hover {
-  border-color: var(--accent);
-  background: rgba(240, 179, 101, 0.1);
-}
-
-.pill-label {
+  font-family: inherit;
+  font-size: var(--fs-sm);
   color: var(--muted);
-  font-size: 0.72rem;
-  letter-spacing: 0.05em;
-  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 0;
+  padding-bottom: 2px;
+  border-bottom: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: color 0.15s;
 }
 
-.pill-name {
+.nav-dropdown:hover .nav-dropdown-trigger,
+.nav-dropdown-trigger:hover,
+.nav-dropdown-trigger.active {
   color: var(--accent);
-  font-family: var(--font-mono);
-  font-weight: 600;
+  border-bottom-color: var(--accent-dim);
 }
 
-.pill-icon {
-  color: var(--muted);
+.dropdown-chevron {
+  transition: transform 0.15s ease;
   opacity: 0.7;
 }
 
-.nav-btn {
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-family: var(--font-sans);
-  font-size: 0.82rem;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-  padding-bottom: 2px;
-  border-bottom: 1px solid transparent;
-  transition: all 0.15s;
+.nav-dropdown:hover .dropdown-chevron {
+  transform: rotate(180deg);
 }
 
-.nav-btn:hover {
-  color: var(--accent);
-  border-bottom-color: var(--accent-dim);
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  white-space: nowrap;
+  background: rgba(14, 10, 24, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  padding: 0.35rem 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 100;
 }
 
-.nav-link {
-  color: var(--muted);
-  font-size: 0.82rem;
-  letter-spacing: 0.04em;
+.nav-dropdown-menu::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 0;
+  right: 0;
+  height: 12px;
+}
+
+.nav-dropdown:hover .nav-dropdown-menu,
+.nav-dropdown:focus-within .nav-dropdown-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.nav-dropdown-menu a {
+  display: block;
+  padding: 0.45rem 1rem;
+  font-size: var(--fs-xs);
+  color: var(--text);
   text-decoration: none;
-  padding-bottom: 2px;
-  border-bottom: 1px solid transparent;
-  transition: all 0.15s;
+  letter-spacing: 0.02em;
+  border: none;
+  transition: background 0.12s, color 0.12s;
 }
 
-.nav-link:hover {
+.nav-dropdown-menu a:hover,
+.nav-links .nav-dropdown-menu a.active {
+  background: rgba(240, 179, 101, 0.12);
   color: var(--accent);
-  border-bottom-color: var(--accent-dim);
+  border: none;
 }
 
 /* -----------------------------------------------
@@ -1644,20 +1692,26 @@ main#app-root,
 }
 
 /* -----------------------------------------------
-   Site Footer (matching eboshii.dev)
+   Footer (matching eboshii.dev)
 ----------------------------------------------- */
-.site-footer {
-  margin-top: auto;
-  flex-shrink: 0;
+footer {
+  background: rgba(5, 3, 10, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-top: 1px solid var(--border);
-  padding: 0.85rem 1.5rem;
+  padding: 0.35rem 2rem;
+  min-height: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  line-height: 1.4;
   text-align: center;
   color: var(--muted);
-  font-size: var(--fs-xs, 0.8rem);
-  font-family: var(--font-sans);
-  background: rgba(5, 3, 10, 0.65);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  font-size: var(--fs-xs);
+  margin-top: auto;
+  flex-shrink: 0;
   position: relative;
   z-index: 20;
 }
@@ -1678,6 +1732,10 @@ main#app-root,
 .footer-sep {
   color: var(--muted);
   opacity: 0.6;
+}
+
+.footer-copy {
+  opacity: 0.45;
 }
 
 .footer-tip-pair {
@@ -1702,4 +1760,29 @@ main#app-root,
 .footer-stats-link.active {
   color: var(--accent);
   border-bottom-color: var(--accent-dim);
+}
+
+@media (max-width: 640px) {
+  header { padding: 0 1rem; }
+  footer { padding: 0.35rem 1rem; }
+
+  nav {
+    height: auto;
+    padding: 0.75rem 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 1.25rem;
+  }
+
+  .nav-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: auto;
+  }
 }

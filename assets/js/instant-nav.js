@@ -151,7 +151,7 @@
   // Nav tabs that stay lit for a whole family of routes (dropdowns, collections)
   const NAV_GROUPS = {
     '/tools': ['/tools', '/pre-ipo', '/news'],
-    '/games': ['/games'],
+    '/games': ['/games', '/predichess'],
     '/blog': ['/blog', '/artificial-life', '/quant', '/travel']
   };
 

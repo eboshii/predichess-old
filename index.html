@@ -28,19 +28,12 @@
   <noscript>
     <style>body { opacity: 1 !important; visibility: visible !important; }</style>
   </noscript>
-  <script>
-    setTimeout(function() {
-      document.documentElement.classList.add('styles-loaded');
-    }, 400);
-  </script>
-  
-  <!-- Google Fonts: eboshii typography system -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   
   <!-- Background preloads -->
-  <link rel="preload" href="/predichess/assets/images/nebula-poster.webp" as="image" type="image/webp">
+  <link rel="preload" href="/predichess/assets/images/nebula-poster.webp" as="image" type="image/webp" fetchpriority="low">
 
   <!-- Main Site CSS preloaded for instantaneous zero-flicker transition back to eboshii.dev -->
   <link rel="preload" href="/assets/css/main.css" as="style">
@@ -48,6 +41,31 @@
 
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" id="predichess-css" href="/predichess/styles.css" onload="document.documentElement.classList.add('styles-loaded')">
+
+  <script>
+    (function () {
+      var done = false;
+      function reveal() {
+        if (done) return;
+        done = true;
+        document.documentElement.classList.add('styles-loaded');
+      }
+
+      var supported = !!(document.fonts && document.fonts.load);
+
+      if (supported) {
+        Promise.all([
+          document.fonts.load('700 1rem "Space Grotesk"'),
+          document.fonts.load('500 1rem "Space Grotesk"'),
+          document.fonts.load('400 1rem "Inter"'),
+          document.fonts.load('400 1rem "EB Garamond"'),
+          document.fonts.load('600 1rem "EB Garamond"')
+        ]).then(reveal).catch(reveal);
+      }
+
+      setTimeout(reveal, supported ? 1500 : 400);
+    })();
+  </script>
 
   <!-- Realtime Network Transports: MQTT + WebRTC PeerJS (deferred so they do not block initial render) -->
   <script id="script-mqtt" src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js" defer></script>
@@ -61,26 +79,41 @@
   <script src="/predichess/assets/js/instant-nav.js"></script>
 
   <!-- Sticky Header matching eboshii.dev -->
-  <header class="site-header">
-    <nav class="header-nav">
-      <div class="nav-left">
-        <a class="site-title" href="/" aria-label="eboshii.dev">
-          <span class="logo-name">eboshii</span><span class="logo-tld">.dev</span>
-        </a>
+  <header>
+    <nav>
+      <div class="site-brand">
+        <a class="site-title" href="/" aria-label="eboshii.dev"><span class="logo-name">eboshii</span><span class="logo-tld">.dev</span></a>
         <span class="nav-slash">/</span>
         <span class="nav-app-name">predichess</span>
       </div>
 
-      <div class="nav-right">
-        <!-- Player Profile Badge (Click to edit display name) -->
-        <button id="btn-player-profile" class="player-profile-pill" title="Edit name">
-          <span id="header-player-name" class="pill-name">Player</span>
-          <svg class="pill-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-          </svg>
-        </button>
-
-        <a href="/games/" class="nav-link">games ↗</a>
+      <div class="nav-links">
+        <a href="/blog/">blog</a>
+        <div class="nav-dropdown">
+          <a class="nav-dropdown-trigger" href="/tools/" aria-haspopup="true" aria-expanded="false">
+            <span>tools</span>
+            <svg class="dropdown-chevron" viewBox="0 0 10 6" width="8" height="6" fill="currentColor">
+              <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <div class="nav-dropdown-menu">
+            <a href="/pre-ipo/">pre-ipo</a>
+            <a href="/news/">news</a>
+          </div>
+        </div>
+        <div class="nav-dropdown">
+          <a class="nav-dropdown-trigger active" href="/games/" aria-haspopup="true" aria-expanded="false">
+            <span>games</span>
+            <svg class="dropdown-chevron" viewBox="0 0 10 6" width="8" height="6" fill="currentColor">
+              <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <div class="nav-dropdown-menu">
+            <a href="https://eboshii.github.io/Paperclips/">Objective: Paperclips</a>
+            <a href="/predichess/" class="active">Predichess</a>
+            <a href="https://eboshiidev.itch.io/emergence" target="_blank" rel="noopener noreferrer">Emergence</a>
+          </div>
+        </div>
       </div>
     </nav>
   </header>
@@ -309,20 +342,6 @@
       </div>
     </div>
 
-    <!-- EDIT DISPLAY NAME MODAL -->
-    <div id="modal-edit-name" class="dialog-overlay">
-      <div class="dialog-box" style="max-width: 340px;">
-        <h4 class="dialog-title">NAME</h4>
-        <form id="form-edit-name" onsubmit="return false;" style="margin: 12px 0;">
-          <input type="text" id="input-player-name" class="form-input" maxlength="18" placeholder="Name" autocomplete="off">
-        </form>
-        <div class="dialog-buttons">
-          <button id="btn-save-name" class="btn-dialog btn-dialog-confirm">SAVE</button>
-          <button id="btn-cancel-name" class="btn-dialog btn-dialog-cancel">CANCEL</button>
-        </div>
-      </div>
-    </div>
-
     <!-- GLOBAL DYNAMIC ALERT DIALOG (Resignation, Game Over) -->
     <div id="global-dialog" class="dialog-overlay">
       <div class="dialog-box">
@@ -342,10 +361,8 @@
   </main>
 
   <!-- Site Footer matching eboshii.dev -->
-  <footer class="site-footer">
+  <footer>
     <div class="footer-inner">
-      <span>&copy; 2026 eboshii.dev</span>
-      <span class="footer-sep">&middot;</span>
       <a href="/stats/" class="footer-stats-link">stats</a>
       <span class="footer-sep">&middot;</span>
       <span class="footer-tip-pair">
@@ -354,6 +371,7 @@
         <a href="/crypto/" class="footer-stats-link">crypto</a>
       </span>
     </div>
+    <div class="footer-copy">&copy; 2026 eboshii.dev</div>
   </footer>
 
   <!-- Permanent Global Ko-fi Container matching eboshii.dev -->
