@@ -746,4 +746,5 @@
   // Render initial frame synchronously and reveal canvas immediately
   render();
   canvas.classList.add('loaded');
+  document.documentElement.classList.add('styles-loaded');
 })();

@@ -96,6 +96,7 @@ export function initApp() {
   checkUrlInviteCode();
   showScreen('lobby');
   try { localStorage.removeItem('predichess_saved_bot_game'); } catch (_) {}
+  document.documentElement.classList.add('styles-loaded');
 }
 
 export function cleanupApp() {

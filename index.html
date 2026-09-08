@@ -8,6 +8,32 @@
   <!-- Web Favicon -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   
+  <!-- Critical Anti-FOUC Tokens: Stagger content display until stylesheets & layout are ready -->
+  <style>
+    html {
+      background-color: #05030a;
+      color: #F5F0E8;
+    }
+    body {
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease-out;
+    }
+    .styles-loaded body,
+    body.ready {
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+  </style>
+  <noscript>
+    <style>body { opacity: 1 !important; visibility: visible !important; }</style>
+  </noscript>
+  <script>
+    setTimeout(function() {
+      document.documentElement.classList.add('styles-loaded');
+    }, 400);
+  </script>
+  
   <!-- Google Fonts: eboshii typography system -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,11 +47,11 @@
   <link rel="stylesheet" id="eboshii-main-css" href="/assets/css/main.css" disabled media="not all">
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" id="predichess-css" href="styles.css">
+  <link rel="stylesheet" id="predichess-css" href="styles.css" onload="document.documentElement.classList.add('styles-loaded')">
 
-  <!-- Realtime Network Transports: MQTT + WebRTC PeerJS -->
-  <script id="script-mqtt" src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
-  <script id="script-peerjs" src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <!-- Realtime Network Transports: MQTT + WebRTC PeerJS (deferred so they do not block initial render) -->
+  <script id="script-mqtt" src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js" defer></script>
+  <script id="script-peerjs" src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" defer></script>
 </head>
 <body>
 

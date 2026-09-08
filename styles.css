@@ -82,6 +82,8 @@ body {
   flex-direction: column;
   overflow-x: hidden;
   line-height: 1.6;
+  opacity: 1;
+  visibility: visible;
 }
 
 /* -----------------------------------------------
